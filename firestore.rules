@@ -1,0 +1,160 @@
+rules_version = '2';
+
+// =============================================================================
+// Little Wins — Firestore security rules
+//
+// Security model (no Cloud Functions):
+//   * PUBLIC (not authenticated)         -> can read/write NOTHING. Default deny.
+//   * CHILD  (anonymous auth)            -> granted only after the family PIN is
+//                                           entered in the app, which triggers
+//                                           anonymous sign-in. Can READ tasks /
+//                                           rewards, CREATE completion records
+//                                           and CREATE pending reward claims.
+//                                           Cannot edit tasks/rewards, cannot
+//                                           change a claim's status, cannot
+//                                           overwrite/delete completions.
+//   * PARENT (email/password auth)       -> full control: manage tasks &
+//                                           rewards, approve/fulfill claims,
+//                                           correct/delete completion history.
+//
+// A child is identified by the anonymous provider; a parent by the password
+// provider. No personal info (names beyond the two fixed profile ids, emails,
+// addresses, etc.) is stored in any document.
+// =============================================================================
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ---- role helpers -------------------------------------------------------
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function provider() {
+      return request.auth.token.firebase.sign_in_provider;
+    }
+
+    // Parents authenticate with email/password.
+    function isParent() {
+      return isSignedIn() && provider() == 'password';
+    }
+
+    // The two (and only two) fixed child profiles.
+    function isChildId(id) {
+      return id == 'emma' || id == 'sophia';
+    }
+
+    // ---- task validation ----------------------------------------------------
+    function validTask(d) {
+      return d.title is string && d.title.size() > 0 && d.title.size() <= 120
+        && d.category is string && d.category.size() <= 40
+        && d.minutes is int && d.minutes >= 0 && d.minutes <= 600
+        && d.points is int && d.points >= 0 && d.points <= 100
+        && d.scheduleType in ['daily', 'weekdays', 'weekends']
+        && d.active is bool
+        && d.order is number
+        && d.assignedTo is list && d.assignedTo.size() > 0 && d.assignedTo.size() <= 2
+        && (!('linkUrl' in d) || (d.linkUrl is string && d.linkUrl.size() <= 500));
+    }
+
+    // ---- reward validation --------------------------------------------------
+    function validReward(d) {
+      return d.title is string && d.title.size() > 0 && d.title.size() <= 120
+        && d.cost is int && d.cost >= 0 && d.cost <= 100000
+        && d.active is bool
+        && d.order is number
+        && (!('description' in d) || (d.description is string && d.description.size() <= 500));
+    }
+
+    // ---- completion validation ----------------------------------------------
+    // Stored fields are intentionally minimal and contain no personal info.
+    function validCompletionShape(d) {
+      return d.keys().hasAll(['childId', 'taskId', 'date', 'points', 'createdAt'])
+        && d.keys().hasOnly(['childId', 'taskId', 'date', 'points', 'minutes', 'category', 'title', 'createdAt'])
+        && isChildId(d.childId)
+        && d.taskId is string && d.taskId.size() > 0
+        && d.date is string && d.date.matches('^[0-9]{4}-[0-9]{2}-[0-9]{2}$')
+        && d.points is int && d.points >= 0 && d.points <= 100
+        && d.createdAt == request.time;
+    }
+
+    // The completion must reference a real, active task that is assigned to the
+    // child, and the awarded points must equal the task's configured points so
+    // a child cannot mint arbitrary points by crafting a write.
+    function completionMatchesTask(d) {
+      let t = get(/databases/$(database)/documents/tasks/$(d.taskId)).data;
+      return t.active == true
+        && t.points == d.points
+        && (d.childId in t.assignedTo);
+    }
+
+    // Deterministic id keeps one completion per child/task/day.
+    function completionIdMatches(id, d) {
+      return id == d.childId + '_' + d.taskId + '_' + d.date;
+    }
+
+    // ---- reward-claim validation --------------------------------------------
+    function validClaimShape(d) {
+      return d.keys().hasAll(['childId', 'rewardId', 'cost', 'status', 'createdAt'])
+        && d.keys().hasOnly(['childId', 'rewardId', 'rewardTitle', 'cost', 'status', 'createdAt', 'decidedAt', 'decidedBy'])
+        && isChildId(d.childId)
+        && d.rewardId is string && d.rewardId.size() > 0
+        && d.cost is int && d.cost >= 0
+        && d.status == 'pending'
+        && d.createdAt == request.time;
+    }
+
+    function claimMatchesReward(d) {
+      let r = get(/databases/$(database)/documents/rewards/$(d.rewardId)).data;
+      return r.active == true && r.cost == d.cost;
+    }
+
+    // =========================================================================
+    // Collection rules
+    // =========================================================================
+
+    // Tasks: any signed-in user may read; only parents may write.
+    match /tasks/{taskId} {
+      allow read: if isSignedIn();
+      allow create, update: if isParent() && validTask(request.resource.data);
+      allow delete: if isParent();
+    }
+
+    // Rewards: any signed-in user may read; only parents may write.
+    match /rewards/{rewardId} {
+      allow read: if isSignedIn();
+      allow create, update: if isParent() && validReward(request.resource.data);
+      allow delete: if isParent();
+    }
+
+    // Completions: signed-in users may read. Children may CREATE only (one per
+    // child/task/day, enforced by deterministic id + create-only). Overwrites
+    // and deletes are parent-only, so a completed task cannot be duplicated or
+    // silently changed by a child.
+    match /completions/{completionId} {
+      allow read: if isSignedIn();
+      allow create: if isSignedIn()
+        && validCompletionShape(request.resource.data)
+        && completionIdMatches(completionId, request.resource.data)
+        && completionMatchesTask(request.resource.data);
+      allow update, delete: if isParent();
+    }
+
+    // Reward claims: children may CREATE a pending claim. Only parents may
+    // update (approve / fulfill / deny) or delete.
+    match /rewardClaims/{claimId} {
+      allow read: if isSignedIn();
+      allow create: if isSignedIn()
+        && validClaimShape(request.resource.data)
+        && claimMatchesReward(request.resource.data);
+      allow update: if isParent()
+        && request.resource.data.status in ['pending', 'approved', 'fulfilled', 'denied'];
+      allow delete: if isParent();
+    }
+
+    // Everything else is denied (no implicit access to any other path).
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
