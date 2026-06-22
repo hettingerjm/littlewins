@@ -9,18 +9,15 @@ import {
   writeBatch,
 } from 'firebase/firestore'
 import { db } from '../firebase'
-import type {
-  ChildId,
-  ClaimStatus,
-  Reward,
-  Task,
-} from '../types'
+import type { ChildId, ClaimStatus, FamilyId, Reward, Task, ThemeKey } from '../types'
 
-// ---- collection references --------------------------------------------------
-export const tasksCol = collection(db, 'tasks')
-export const completionsCol = collection(db, 'completions')
-export const rewardsCol = collection(db, 'rewards')
-export const claimsCol = collection(db, 'rewardClaims')
+// ---- family-scoped collection references ------------------------------------
+export const childrenCol = (fid: FamilyId) => collection(db, 'families', fid, 'children')
+export const tasksCol = (fid: FamilyId) => collection(db, 'families', fid, 'tasks')
+export const completionsCol = (fid: FamilyId) => collection(db, 'families', fid, 'completions')
+export const rewardsCol = (fid: FamilyId) => collection(db, 'families', fid, 'rewards')
+export const claimsCol = (fid: FamilyId) => collection(db, 'families', fid, 'rewardClaims')
+export const familyDoc = (fid: FamilyId) => doc(db, 'families', fid)
 
 // ---- completions ------------------------------------------------------------
 
@@ -29,17 +26,13 @@ export function completionId(childId: ChildId, taskId: string, dateKey: string):
   return `${childId}_${taskId}_${dateKey}`
 }
 
-/**
- * Mark a task complete for a child on a day. Uses a deterministic doc id so a
- * task cannot be completed twice for the same child/date (Firestore rules also
- * forbid children from overwriting an existing completion).
- */
 export async function completeTask(
+  fid: FamilyId,
   child: ChildId,
   task: Task,
   dateKey: string,
 ): Promise<void> {
-  const ref = doc(completionsCol, completionId(child, task.id, dateKey))
+  const ref = doc(completionsCol(fid), completionId(child, task.id, dateKey))
   await setDoc(ref, {
     childId: child,
     taskId: task.id,
@@ -52,16 +45,36 @@ export async function completeTask(
   })
 }
 
-/** Parent-only: remove a completion (undo / correct history). */
-export async function removeCompletion(id: string): Promise<void> {
-  await deleteDoc(doc(completionsCol, id))
+export async function removeCompletion(fid: FamilyId, id: string): Promise<void> {
+  await deleteDoc(doc(completionsCol(fid), id))
+}
+
+// ---- children (parent only) -------------------------------------------------
+
+export interface ChildInput {
+  name: string
+  emoji: string
+  theme: ThemeKey
+  order: number
+}
+
+export async function createChild(fid: FamilyId, input: ChildInput): Promise<void> {
+  await addDoc(childrenCol(fid), { ...input })
+}
+
+export async function updateChild(fid: FamilyId, id: ChildId, input: ChildInput): Promise<void> {
+  await updateDoc(doc(childrenCol(fid), id), { ...input })
+}
+
+export async function deleteChild(fid: FamilyId, id: ChildId): Promise<void> {
+  await deleteDoc(doc(childrenCol(fid), id))
 }
 
 // ---- tasks (parent only) ----------------------------------------------------
 
 export type TaskInput = Omit<Task, 'id'>
 
-export async function createTask(input: TaskInput): Promise<void> {
+export async function createTask(fid: FamilyId, input: TaskInput): Promise<void> {
   const data: Record<string, unknown> = {
     title: input.title,
     category: input.category,
@@ -73,11 +86,11 @@ export async function createTask(input: TaskInput): Promise<void> {
     assignedTo: input.assignedTo,
   }
   if (input.linkUrl) data.linkUrl = input.linkUrl
-  await addDoc(tasksCol, data)
+  await addDoc(tasksCol(fid), data)
 }
 
-export async function updateTask(id: string, input: TaskInput): Promise<void> {
-  const data: Record<string, unknown> = {
+export async function updateTask(fid: FamilyId, id: string, input: TaskInput): Promise<void> {
+  await updateDoc(doc(tasksCol(fid), id), {
     title: input.title,
     category: input.category,
     minutes: input.minutes,
@@ -86,26 +99,21 @@ export async function updateTask(id: string, input: TaskInput): Promise<void> {
     active: input.active,
     order: input.order,
     assignedTo: input.assignedTo,
-    // Always include linkUrl so clearing it removes the value.
     linkUrl: input.linkUrl ?? '',
-  }
-  await updateDoc(doc(tasksCol, id), data)
-}
-
-export async function setTaskActive(id: string, active: boolean): Promise<void> {
-  await updateDoc(doc(tasksCol, id), { active })
-}
-
-export async function deleteTask(id: string): Promise<void> {
-  await deleteDoc(doc(tasksCol, id))
-}
-
-/** Persist a new ordering by writing each task's `order` in one batch. */
-export async function reorderTasks(orderedIds: string[]): Promise<void> {
-  const batch = writeBatch(db)
-  orderedIds.forEach((id, index) => {
-    batch.update(doc(tasksCol, id), { order: index })
   })
+}
+
+export async function setTaskActive(fid: FamilyId, id: string, active: boolean): Promise<void> {
+  await updateDoc(doc(tasksCol(fid), id), { active })
+}
+
+export async function deleteTask(fid: FamilyId, id: string): Promise<void> {
+  await deleteDoc(doc(tasksCol(fid), id))
+}
+
+export async function reorderTasks(fid: FamilyId, orderedIds: string[]): Promise<void> {
+  const batch = writeBatch(db)
+  orderedIds.forEach((id, index) => batch.update(doc(tasksCol(fid), id), { order: index }))
   await batch.commit()
 }
 
@@ -113,7 +121,7 @@ export async function reorderTasks(orderedIds: string[]): Promise<void> {
 
 export type RewardInput = Omit<Reward, 'id'>
 
-export async function createReward(input: RewardInput): Promise<void> {
+export async function createReward(fid: FamilyId, input: RewardInput): Promise<void> {
   const data: Record<string, unknown> = {
     title: input.title,
     cost: input.cost,
@@ -121,11 +129,11 @@ export async function createReward(input: RewardInput): Promise<void> {
     order: input.order,
   }
   if (input.description) data.description = input.description
-  await addDoc(rewardsCol, data)
+  await addDoc(rewardsCol(fid), data)
 }
 
-export async function updateReward(id: string, input: RewardInput): Promise<void> {
-  await updateDoc(doc(rewardsCol, id), {
+export async function updateReward(fid: FamilyId, id: string, input: RewardInput): Promise<void> {
+  await updateDoc(doc(rewardsCol(fid), id), {
     title: input.title,
     cost: input.cost,
     active: input.active,
@@ -134,18 +142,14 @@ export async function updateReward(id: string, input: RewardInput): Promise<void
   })
 }
 
-export async function deleteReward(id: string): Promise<void> {
-  await deleteDoc(doc(rewardsCol, id))
+export async function deleteReward(fid: FamilyId, id: string): Promise<void> {
+  await deleteDoc(doc(rewardsCol(fid), id))
 }
 
 // ---- reward claims ----------------------------------------------------------
 
-/** Child requests a reward; always created as pending. */
-export async function requestReward(
-  child: ChildId,
-  reward: Reward,
-): Promise<void> {
-  await addDoc(claimsCol, {
+export async function requestReward(fid: FamilyId, child: ChildId, reward: Reward): Promise<void> {
+  await addDoc(claimsCol(fid), {
     childId: child,
     rewardId: reward.id,
     rewardTitle: reward.title,
@@ -155,13 +159,13 @@ export async function requestReward(
   })
 }
 
-/** Parent decides on a claim. */
 export async function decideClaim(
+  fid: FamilyId,
   id: string,
   status: ClaimStatus,
   decidedBy: string,
 ): Promise<void> {
-  await updateDoc(doc(claimsCol, id), {
+  await updateDoc(doc(claimsCol(fid), id), {
     status,
     decidedAt: serverTimestamp(),
     decidedBy,

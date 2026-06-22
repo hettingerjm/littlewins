@@ -1,6 +1,6 @@
 import { FormEvent, useState } from 'react'
-import { CHILDREN } from '../../config'
-import { useTasks } from '../../hooks/data'
+import { useAuth } from '../../context/AuthContext'
+import { useChildren, useTasks } from '../../hooks/data'
 import {
   createTask,
   deleteTask,
@@ -10,12 +10,12 @@ import {
   type TaskInput,
 } from '../../lib/db'
 import { scheduleLabel } from '../../lib/schedule'
-import type { ChildId, ScheduleType, Task } from '../../types'
+import type { Child, ChildId, FamilyId, ScheduleType, Task } from '../../types'
 import { Badge, EmptyState, PageHeader, Spinner } from '../../components/ui'
 
 const SCHEDULES: ScheduleType[] = ['daily', 'weekdays', 'weekends']
 
-const emptyDraft = (order: number): TaskInput => ({
+const emptyDraft = (order: number, allChildIds: ChildId[]): TaskInput => ({
   title: '',
   category: '',
   minutes: 10,
@@ -23,24 +23,29 @@ const emptyDraft = (order: number): TaskInput => ({
   scheduleType: 'daily',
   active: true,
   order,
-  assignedTo: ['emma', 'sophia'],
+  assignedTo: allChildIds,
   linkUrl: '',
 })
 
 export default function ManageTasks() {
-  const { tasks, loading } = useTasks()
+  const { familyId } = useAuth()
+  const { tasks, loading } = useTasks(familyId)
+  const { children } = useChildren(familyId)
   const [editing, setEditing] = useState<Task | null>(null)
   const [creating, setCreating] = useState(false)
 
   const move = async (index: number, dir: -1 | 1) => {
+    if (!familyId) return
     const next = index + dir
     if (next < 0 || next >= tasks.length) return
     const ids = tasks.map((t) => t.id)
     ;[ids[index], ids[next]] = [ids[next], ids[index]]
-    await reorderTasks(ids)
+    await reorderTasks(familyId, ids)
   }
 
   if (loading) return <Spinner label="Loading tasks…" />
+
+  const childName = (id: ChildId) => children.find((c) => c.id === id)?.name ?? id
 
   return (
     <>
@@ -48,13 +53,15 @@ export default function ManageTasks() {
         title="Tasks"
         subtitle="Add, edit, reorder, and activate the daily tasks."
         right={
-          <button className="btn-primary" onClick={() => setCreating(true)}>
+          <button className="btn-primary" onClick={() => setCreating(true)} disabled={children.length === 0}>
             + Add task
           </button>
         }
       />
 
-      {tasks.length === 0 ? (
+      {children.length === 0 ? (
+        <EmptyState emoji="🧒" title="Add kids first" hint="Tasks are assigned to children — add them in the Kids tab." />
+      ) : tasks.length === 0 ? (
         <EmptyState emoji="📝" title="No tasks yet" hint="Add your first task to get started." />
       ) : (
         <ul className="space-y-2">
@@ -96,18 +103,14 @@ export default function ManageTasks() {
                   <span>•</span>
                   <span>{scheduleLabel(task.scheduleType)}</span>
                   <span>•</span>
-                  <span>
-                    {task.assignedTo
-                      .map((id) => CHILDREN.find((c) => c.id === id)?.name ?? id)
-                      .join(' & ')}
-                  </span>
+                  <span>{task.assignedTo.map(childName).join(' & ')}</span>
                   {task.linkUrl && <span className="text-indigo-500">🔗</span>}
                 </div>
               </div>
 
               <div className="flex shrink-0 items-center gap-2">
                 <button
-                  onClick={() => setTaskActive(task.id, !task.active)}
+                  onClick={() => familyId && setTaskActive(familyId, task.id, !task.active)}
                   className="btn-ghost text-sm"
                 >
                   {task.active ? 'Deactivate' : 'Activate'}
@@ -121,10 +124,12 @@ export default function ManageTasks() {
         </ul>
       )}
 
-      {(creating || editing) && (
+      {(creating || editing) && familyId && (
         <TaskForm
+          familyId={familyId}
           task={editing}
           defaultOrder={tasks.length}
+          children={children}
           onClose={() => {
             setCreating(false)
             setEditing(null)
@@ -136,12 +141,16 @@ export default function ManageTasks() {
 }
 
 function TaskForm({
+  familyId,
   task,
   defaultOrder,
+  children,
   onClose,
 }: {
+  familyId: FamilyId
   task: Task | null
   defaultOrder: number
+  children: Child[]
   onClose: () => void
 }) {
   const [draft, setDraft] = useState<TaskInput>(
@@ -157,7 +166,7 @@ function TaskForm({
           assignedTo: task.assignedTo,
           linkUrl: task.linkUrl ?? '',
         }
-      : emptyDraft(defaultOrder),
+      : emptyDraft(defaultOrder, children.map((c) => c.id)),
   )
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -185,8 +194,8 @@ function TaskForm({
         points: Math.max(0, Math.round(draft.points)),
         linkUrl: draft.linkUrl?.trim() || undefined,
       }
-      if (task) await updateTask(task.id, clean)
-      else await createTask(clean)
+      if (task) await updateTask(familyId, task.id, clean)
+      else await createTask(familyId, clean)
       onClose()
     } catch (err) {
       console.error(err)
@@ -201,7 +210,7 @@ function TaskForm({
     if (!confirm(`Delete "${task.title}" permanently? Past history is kept.`)) return
     setBusy(true)
     try {
-      await deleteTask(task.id)
+      await deleteTask(familyId, task.id)
       onClose()
     } catch (err) {
       console.error(err)
@@ -216,9 +225,7 @@ function TaskForm({
         onSubmit={onSubmit}
         className="max-h-[92dvh] w-full max-w-lg overflow-y-auto rounded-t-3xl bg-white p-6 shadow-xl sm:rounded-3xl"
       >
-        <h2 className="mb-5 text-xl font-black text-slate-900">
-          {task ? 'Edit task' : 'New task'}
-        </h2>
+        <h2 className="mb-5 text-xl font-black text-slate-900">{task ? 'Edit task' : 'New task'}</h2>
 
         <label className="label" htmlFor="t-title">
           Title
@@ -252,9 +259,7 @@ function TaskForm({
               id="t-sched"
               className="input"
               value={draft.scheduleType}
-              onChange={(e) =>
-                setDraft({ ...draft, scheduleType: e.target.value as ScheduleType })
-              }
+              onChange={(e) => setDraft({ ...draft, scheduleType: e.target.value as ScheduleType })}
             >
               {SCHEDULES.map((s) => (
                 <option key={s} value={s}>
@@ -292,15 +297,13 @@ function TaskForm({
         </div>
 
         <span className="label">Applies to</span>
-        <div className="mb-4 flex gap-2">
-          {CHILDREN.map((c) => (
+        <div className="mb-4 flex flex-wrap gap-2">
+          {children.map((c) => (
             <button
               type="button"
               key={c.id}
               onClick={() => toggleChild(c.id)}
-              className={`btn ${
-                draft.assignedTo.includes(c.id) ? 'btn-primary' : 'btn-ghost'
-              }`}
+              className={`btn ${draft.assignedTo.includes(c.id) ? 'btn-primary' : 'btn-ghost'}`}
             >
               {c.emoji} {c.name}
             </button>

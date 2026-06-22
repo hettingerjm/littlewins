@@ -1,6 +1,7 @@
 import { initializeApp } from 'firebase/app'
 import { getAuth } from 'firebase/auth'
 import { getFirestore } from 'firebase/firestore'
+import { getFunctions } from 'firebase/functions'
 
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
@@ -12,7 +13,6 @@ const firebaseConfig = {
 }
 
 if (!firebaseConfig.apiKey || !firebaseConfig.projectId) {
-  // Surfaced early so a missing .env doesn't fail with cryptic Firebase errors.
   console.warn(
     '[Little Wins] Firebase config is missing. Copy .env.example to .env and ' +
       'fill in your Firebase web app config.',
@@ -22,3 +22,5 @@ if (!firebaseConfig.apiKey || !firebaseConfig.projectId) {
 export const app = initializeApp(firebaseConfig)
 export const auth = getAuth(app)
 export const db = getFirestore(app)
+// Cloud Functions region must match the functions' deployed region.
+export const functions = getFunctions(app, 'us-central1')

@@ -26,6 +26,9 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Install functions dependencies
+        run: npm ci --prefix functions
+
       - name: Type check
         run: npm run typecheck
 
@@ -50,7 +53,7 @@ jobs:
           FIREBASE_PROJECT: ${{ secrets.VITE_FIREBASE_PROJECT_ID }}
         run: |
           npx firebase-tools@13 deploy \
-            --only hosting,firestore:rules \
+            --only hosting,firestore:rules,functions \
             --project "$FIREBASE_PROJECT" \
             --non-interactive
 

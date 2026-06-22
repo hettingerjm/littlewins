@@ -1,170 +1,135 @@
 # ⭐ Little Wins
 
-A small, **private** daily chore & practice tracker for one family with two
-children — **Emma** and **Sophia**. Kids check off their tasks, earn points,
-build daily streaks, and request rewards. Parents manage everything from a
-login-protected dashboard.
+A **private** daily chore & practice tracker for a small, invite-only set of
+**friend families**. Kids check off their tasks, earn points, build daily
+streaks, and request rewards. Parents manage everything from a Google-login
+dashboard. Each family is fully isolated — one family can never see another's
+data.
 
-> This app is intentionally single-family and two-children only. There is no
-> multi-family support, and no child email accounts are ever created.
+> This is intentionally **not** a public app. Families are provisioned by hand
+> (see the admin CLI). No child email accounts are ever created.
 
 Built with **React + TypeScript + Vite**, **Tailwind CSS**, **Firebase Auth**,
-**Cloud Firestore**, and deployed to **Firebase Hosting** via **GitHub Actions**.
+**Cloud Firestore**, and **one Cloud Function**, deployed to **Firebase
+Hosting** via **GitHub Actions**.
 
 ---
 
 ## How it works
 
 ### Kids
-1. **Landing page** asks for a simple family **PIN**.
-2. After the PIN, two large profile buttons appear: **Emma** and **Sophia**.
-3. A child's home shows **today's tasks**, **progress**, **points today**,
-   **total points**, and the **current daily streak**.
-4. Checking a task writes a Firestore **completion record** for that
-   child + task + date. A task can't be completed twice for the same day
-   (enforced by a deterministic document id _and_ security rules).
-5. The **Rewards** page lists available rewards and their point costs; a child
-   can **request** one. Requests start as **pending** until a parent decides.
+1. Open the family link **`/f/<familyId>`** (or type the family code on the
+   landing page).
+2. Enter the **family PIN**. This is verified server-side by the `kidLogin`
+   Cloud Function, which mints a login token stamped with that `familyId`.
+3. Pick a profile, then see today's tasks, progress, points today, total
+   points, and the current daily streak.
+4. Check a task → a Firestore **completion** is written (one per
+   child/task/day, enforced by a deterministic id + rules).
+5. The **Rewards** page lists rewards and costs; a child can **request** one.
+   Requests start **pending** until a parent decides.
 
 ### Parents
-- Sign in with **Google** (only allow-listed emails get parent access).
-- **Today:** live progress for both children.
-- **History:** browse completions by child and date (and undo records).
-- **Tasks:** add / edit / deactivate / reorder. Each task has a title,
-  category, minutes, points, schedule type, active status, optional link URL,
-  and applies to Emma, Sophia, or both.
-- **Rewards:** add / edit rewards.
-- **Claims:** approve / fulfill / deny reward requests.
-
-### Sounds & animations
-The kids' screens are playful: a chime when a task is checked, a triumphant
-fanfare **and confetti** when the whole day is finished, a sparkle when a reward
-is requested, plus springy pops, a flickering streak flame, and staggered card
-entrances. All sounds are **synthesized at runtime via the Web Audio API** — no
-audio files, no network requests, works offline. There's a 🔊/🔇 toggle on every
-kid screen (saved in `localStorage`), and confetti respects
-`prefers-reduced-motion`. See [`src/lib/sound.ts`](./src/lib/sound.ts) and
-[`src/lib/confetti.ts`](./src/lib/confetti.ts).
+- Sign in with **Google** (must be an invited email for the family).
+- **Today**, **History** (by child & date), **Tasks** (add/edit/deactivate/
+  reorder, assign to any kids), **Rewards**, **Claims** (approve/fulfill/deny),
+  and **Kids** (add/edit child profiles, emoji + color theme).
 
 ### Streak rule
 A child's daily streak increases when **all required active tasks scheduled for
-that child that day** are completed. Missing a day resets the streak. Days with
-no scheduled tasks are neutral and bridge the streak (e.g. a weekend for a
-weekday-only task).
+that child that day** are completed. Missing a day resets it. Days with no
+scheduled tasks are neutral and bridge the streak.
 
 ---
 
-## Security model
+## Architecture
 
-There are **no Cloud Functions**. Access is enforced entirely by Firestore
-rules ([`firestore.rules`](./firestore.rules)):
+Everything lives under `/families/{familyId}/…`:
 
-| Who | How they authenticate | What they can do |
-| --- | --- | --- |
-| **Public** (no auth) | — | **Nothing.** Default deny. |
-| **Child** | Anonymous auth, granted **only after the family PIN** is entered | Read tasks/rewards; **create** completions and **create pending** reward claims. Cannot edit tasks/rewards, change a claim's status, or overwrite/delete completions. |
-| **Parent** | Google sign-in, email on the allow-list | Everything: manage tasks & rewards, approve/fulfill claims, correct history. |
+```
+families/{familyId}                  { name, createdAt }
+families/{familyId}/private/auth     { pinHash, pinSalt, ... }   # never client-readable
+families/{familyId}/children/{id}    { name, emoji, theme, order }
+families/{familyId}/tasks/{id}       { title, category, minutes, points, scheduleType, active, order, assignedTo[], linkUrl? }
+families/{familyId}/completions/{id} { childId, taskId, date, points, ... }   # id = childId_taskId_date
+families/{familyId}/rewards/{id}     { title, description?, cost, active, order }
+families/{familyId}/rewardClaims/{id}{ childId, rewardId, cost, status, ... }
+parentInvites/{email}                { familyId }   # who may become a parent
+```
 
-- A **child** is detected as the `anonymous` sign-in provider; a **parent** is a
-  Google account whose **verified email is on the allow-list** in both
-  `firestore.rules` (`parentEmails()`) and the app (`VITE_PARENT_EMAILS`). Any
-  Google account can *authenticate*, but only allow-listed emails get any
-  access — a non-listed account has no powers at all.
-- Completion writes are validated against the referenced task (must be active,
-  assigned to that child, and award exactly the task's points) so a child can't
-  mint arbitrary points.
-- **No sensitive personal information** is stored. Documents hold only the two
-  fixed profile ids (`emma`/`sophia`), task/reward metadata, dates, and points.
+### Security model
+Every signed-in user carries custom claims set server-side:
 
-### ⚠️ About the PIN
-`VITE_FAMILY_PIN` is baked into the public JS bundle at build time, so it is
-**not a real secret** — it's a friction gate so casual visitors can't poke at
-the kids' screens. The real security boundary is: every read/write requires
-authentication, and all parent actions require an allow-listed Google account.
-Rotate the
-PIN by changing the secret and redeploying. If you later want the PIN itself
-enforced server-side, add a callable Cloud Function that verifies it and mints a
-custom claim.
+| Who | Auth | Claims | Can do |
+| --- | --- | --- | --- |
+| **Public** | — | — | Nothing (default deny) |
+| **Child** | custom token from `kidLogin` after the PIN | `{ familyId, role: 'child' }` | Read their family's tasks/rewards; create completions + pending claims |
+| **Parent** | Google sign-in | `{ familyId, role: 'parent' }` (set by `syncParentClaims` from the invite list) | Full control **within their family** |
+
+Rules scope **every** read/write to `request.auth.token.familyId`, so families
+are isolated. PINs are stored only as salted hashes in a private subcollection
+no client can read; only the Admin SDK / Cloud Function touch them. The
+`kidLogin` function rate-limits wrong PINs with a short lockout.
+
+### Cloud Functions (`functions/`)
+- **`kidLogin({ familyId, pin })`** — verifies the PIN, mints a child token.
+- **`syncParentClaims()`** — on a parent's Google sign-in, looks them up in
+  `parentInvites/{email}` and stamps their family/role claim.
+
+---
+
+## Provisioning families (admin CLI)
+
+Run with a service-account key (`GOOGLE_APPLICATION_CREDENTIALS=./serviceAccount.json`):
+
+```bash
+# Create a family with a PIN, kids, invited parents, and starter tasks/rewards
+npm run admin -- add-family --id smith --name "Smith Family" --pin 1234 \
+  --kids "Ava:🦊:pink,Leo:🚀:sky" \
+  --parents "mom@gmail.com,dad@gmail.com" --seed
+
+npm run admin -- set-pin     --id smith --pin 5678
+npm run admin -- add-parents --id smith --parents "grandma@gmail.com"
+npm run admin -- list
+```
+
+`--kids` entries are `Name:emoji:theme` (emoji/theme optional; themes:
+pink, indigo, emerald, amber, sky, violet, rose, teal).
 
 ---
 
 ## Local development
 
-### 1. Create a Firebase project
-- In the [Firebase console](https://console.firebase.google.com/): create a
-  project, add a **Web app**, and copy the config values.
-- Enable **Authentication → Sign-in method → Anonymous** and **Google**.
-- Create your **Cloud Firestore** database (production mode).
-- Add your parent Google email to the allow-list in **two** places:
-  `VITE_PARENT_EMAILS` (`.env`) and `parentEmails()` in
-  [`firestore.rules`](./firestore.rules).
+1. **Firebase project** (one-time): enable **Authentication → Anonymous + Google**,
+   create **Cloud Firestore** (production mode), and **upgrade to the Blaze
+   plan** (required for Cloud Functions; free at this scale).
+2. **Env**: `cp .env.example .env` and fill in the `VITE_FIREBASE_*` values.
+3. **Install & run**: `npm install` then `npm run dev`.
+4. **Functions deps**: `npm install --prefix functions`.
+5. **Provision a family** with the admin CLI above.
 
-### 2. Configure env
-```bash
-cp .env.example .env
-# fill in VITE_FIREBASE_*, choose a VITE_FAMILY_PIN, set VITE_PARENT_EMAILS
-```
-
-### 3. Install & run
-```bash
-npm install
-npm run dev
-```
-
-### 4. Seed the initial tasks
-The seed script uses the **Admin SDK** (bypasses rules), so it needs a
-service-account key — the same one used for deploys (Firebase console → Project
-settings → Service accounts → *Generate new private key*):
-```bash
-GOOGLE_APPLICATION_CREDENTIALS=./serviceAccount.json npm run seed
-```
-(Add `--force` to re-seed even if tasks already exist.) You can also add tasks
-manually from the parent **Tasks** tab.
-
-### Optional: emulators
-```bash
-npm run emulators   # Auth + Firestore + Hosting + UI
-```
+Emulators: `npm run emulators` (Auth + Firestore + Functions + Hosting).
 
 ---
 
 ## Deploying
 
-Deploys are automated with GitHub Actions
-([`.github/workflows/deploy.yml`](./.github/workflows/deploy.yml)): every push
-to `main` type-checks, builds, and deploys **Hosting + Firestore rules +
-indexes**.
+GitHub Actions ([`.github/workflows/deploy.yml`](./.github/workflows/deploy.yml))
+deploys **Hosting + Firestore rules + Functions** on every push to `main`.
 
-### One-time setup
-1. Push this repo to GitHub.
-2. Install the Firebase CLI locally and set your project id in
-   [`.firebaserc`](./.firebaserc) (replace `your-project-id`).
-3. Create a **service account** with deploy permissions:
-   - Firebase console → Project settings → Service accounts → *Generate new
-     private key* (or a GCP service account with the **Firebase Hosting Admin**,
-     **Cloud Datastore** / Firestore, and **Firebase Authentication Viewer**
-     roles).
-4. Add these **GitHub Actions secrets** (Settings → Secrets and variables →
-   Actions):
+Required GitHub secrets (Settings → Secrets and variables → Actions):
 
-   | Secret | Value |
-   | --- | --- |
-   | `FIREBASE_SERVICE_ACCOUNT` | The full service-account JSON |
-   | `VITE_FIREBASE_API_KEY` | from web config |
-   | `VITE_FIREBASE_AUTH_DOMAIN` | from web config |
-   | `VITE_FIREBASE_PROJECT_ID` | from web config |
-   | `VITE_FIREBASE_STORAGE_BUCKET` | from web config |
-   | `VITE_FIREBASE_MESSAGING_SENDER_ID` | from web config |
-   | `VITE_FIREBASE_APP_ID` | from web config |
-   | `VITE_FAMILY_PIN` | the family PIN |
-   | `VITE_PARENT_EMAILS` | comma-separated parent Google emails (match `parentEmails()` in the rules) |
+| Secret | Value |
+| --- | --- |
+| `FIREBASE_SERVICE_ACCOUNT` | full service-account JSON |
+| `VITE_FIREBASE_API_KEY` … `VITE_FIREBASE_APP_ID` | from the web app config |
 
-5. Push to `main`. The site deploys to Firebase Hosting and the rules go live.
+The deploy service account needs roles: **Firebase Admin**, **Cloud Functions
+Admin**, and **Service Account User** (functions deploy). Manual deploy:
 
-### Manual deploy
 ```bash
 npm run build
-npx firebase-tools deploy --only hosting,firestore:rules,firestore:indexes --project <your-project-id>
+npx firebase-tools deploy --only hosting,firestore:rules,functions --project <project-id>
 ```
 
 ---
@@ -172,20 +137,15 @@ npx firebase-tools deploy --only hosting,firestore:rules,firestore:indexes --pro
 ## Project structure
 
 ```
+functions/src/index.ts   kidLogin + syncParentClaims (Admin SDK)
+scripts/admin.ts          provision families / set PIN / migrate / list
 src/
-  config.ts            Fixed children (Emma/Sophia) + family PIN source
-  firebase.ts          Firebase app init
-  types.ts             Shared domain types
-  lib/
-    dates.ts           Local-day helpers (YYYY-MM-DD)
-    schedule.ts        Which tasks apply on a given day
-    points.ts          Points earned / spent / balance
-    streak.ts          Daily streak computation
-    db.ts              Firestore collection refs + mutations
-  hooks/data.ts        Realtime Firestore subscriptions
-  context/AuthContext  PIN → anonymous, parent Google sign-in (allow-list)
-  components/          UI primitives + route guards
-  pages/               Child screens + parent/ dashboard screens
-firestore.rules        Security rules (the real access boundary)
-scripts/seed.ts        Seed initial tasks + sample rewards
+  config.ts               color themes
+  types.ts                Family, Child, Task, Reward, Claim, SessionClaims
+  lib/                     dates, schedule, points, streak, db (family-scoped), sound, confetti
+  hooks/data.ts           realtime Firestore subscriptions (family-scoped)
+  context/AuthContext      PIN→child token, Google→parent claims, mobile-safe sign-in
+  pages/                   LandingHome, FamilyPin, ProfileSelect, ChildHome, Rewards
+  pages/parent/            dashboard, history, tasks, rewards, claims, kids
+firestore.rules           family-scoped security rules
 ```

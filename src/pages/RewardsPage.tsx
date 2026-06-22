@@ -1,12 +1,13 @@
 import { useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
-import { getChild } from '../config'
-import { useChildClaims, useChildCompletions, useRewards } from '../hooks/data'
+import { useAuth } from '../context/AuthContext'
+import { useChildClaims, useChildCompletions, useChildren, useRewards } from '../hooks/data'
 import { requestReward } from '../lib/db'
 import { availableBalance } from '../lib/points'
+import { getTheme } from '../config'
 import { sound } from '../lib/sound'
 import { confetti } from '../lib/confetti'
-import type { ChildId, Reward, RewardClaim } from '../types'
+import type { ChildId, FamilyId, Reward, RewardClaim } from '../types'
 import { Badge, Spinner, StatCard } from '../components/ui'
 import { SoundToggle } from '../components/SoundToggle'
 
@@ -25,13 +26,19 @@ const STATUS_LABEL = {
 } as const
 
 export default function RewardsPage() {
-  const { childId } = useParams<{ childId: string }>()
+  const { childId = '' } = useParams<{ childId: string }>()
   const navigate = useNavigate()
-  const child = childId ? getChild(childId) : undefined
+  const { familyId } = useAuth()
 
-  const { rewards, loading: rewardsLoading } = useRewards()
-  const { completions, loading: compLoading } = useChildCompletions((childId ?? 'emma') as ChildId)
-  const { claims, loading: claimsLoading } = useChildClaims((childId ?? 'emma') as ChildId)
+  const { children, loading: childrenLoading } = useChildren(familyId)
+  const { rewards, loading: rewardsLoading } = useRewards(familyId)
+  const { completions, loading: compLoading } = useChildCompletions(familyId, childId)
+  const { claims, loading: claimsLoading } = useChildClaims(familyId, childId)
+
+  const child = children.find((c) => c.id === childId)
+
+  if (childrenLoading || rewardsLoading || compLoading || claimsLoading)
+    return <Spinner label="Loading rewards…" />
 
   if (!child) {
     return (
@@ -42,7 +49,6 @@ export default function RewardsPage() {
       </div>
     )
   }
-  if (rewardsLoading || compLoading || claimsLoading) return <Spinner label="Loading rewards…" />
 
   const balance = availableBalance(completions, claims, child.id)
   const activeRewards = rewards.filter((r) => r.active)
@@ -53,7 +59,7 @@ export default function RewardsPage() {
     .sort((a, b) => (b.createdAt?.toMillis?.() ?? 0) - (a.createdAt?.toMillis?.() ?? 0))
     .slice(0, 8)
 
-  const theme = child.theme === 'emma' ? 'text-pink-600' : 'text-indigo-600'
+  const accent = getTheme(child.theme).accent
 
   return (
     <div className="mx-auto max-w-2xl px-4 pb-16 pt-6">
@@ -71,7 +77,7 @@ export default function RewardsPage() {
       </div>
 
       <div className="mb-6 grid grid-cols-2 gap-3">
-        <StatCard label="Points to spend" value={balance} emoji="🪙" accent={theme} />
+        <StatCard label="Points to spend" value={balance} emoji="🪙" accent={accent} />
         <StatCard label="Requests" value={claims.length} emoji="📨" />
       </div>
 
@@ -89,11 +95,12 @@ export default function RewardsPage() {
           {activeRewards.map((reward) => (
             <RewardRow
               key={reward.id}
+              familyId={familyId!}
               reward={reward}
               childId={child.id}
               balance={balance}
               pending={pendingByReward.has(reward.id)}
-              accent={theme}
+              accent={accent}
             />
           ))}
         </ul>
@@ -116,12 +123,14 @@ export default function RewardsPage() {
 }
 
 function RewardRow({
+  familyId,
   reward,
   childId,
   balance,
   pending,
   accent,
 }: {
+  familyId: FamilyId
   reward: Reward
   childId: ChildId
   balance: number
@@ -136,7 +145,7 @@ function RewardRow({
     setBusy(true)
     void sound.play('reward')
     try {
-      await requestReward(childId, reward)
+      await requestReward(familyId, childId, reward)
       confetti({ originY: 0.4, count: 90, power: 0.85 })
     } catch (err) {
       console.error('Could not request reward', err)

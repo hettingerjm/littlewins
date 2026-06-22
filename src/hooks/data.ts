@@ -6,16 +6,35 @@ import {
   type Query,
   type DocumentData,
 } from 'firebase/firestore'
-import { claimsCol, completionsCol, rewardsCol, tasksCol } from '../lib/db'
-import type { ChildId, Completion, Reward, RewardClaim, Task } from '../types'
+import {
+  childrenCol,
+  claimsCol,
+  completionsCol,
+  rewardsCol,
+  tasksCol,
+} from '../lib/db'
+import type {
+  Child,
+  ChildId,
+  Completion,
+  FamilyId,
+  Reward,
+  RewardClaim,
+  Task,
+} from '../types'
 
 /** Generic realtime list subscription with id + data merge. */
-function useCollectionData<T>(q: Query<DocumentData>, deps: unknown[]) {
+function useCollectionData<T>(q: Query<DocumentData> | null, deps: unknown[]) {
   const [items, setItems] = useState<T[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<Error | null>(null)
 
   useEffect(() => {
+    if (!q) {
+      setItems([])
+      setLoading(false)
+      return
+    }
     setLoading(true)
     const unsub = onSnapshot(
       q,
@@ -35,48 +54,64 @@ function useCollectionData<T>(q: Query<DocumentData>, deps: unknown[]) {
   return { items, loading, error }
 }
 
-export function useTasks() {
-  const { items, loading, error } = useCollectionData<Task>(query(tasksCol), [])
+export function useChildren(familyId: FamilyId | null) {
+  const { items, loading, error } = useCollectionData<Child>(
+    familyId ? query(childrenCol(familyId)) : null,
+    [familyId],
+  )
+  const children = [...items].sort((a, b) => a.order - b.order)
+  return { children, loading, error }
+}
+
+export function useTasks(familyId: FamilyId | null) {
+  const { items, loading, error } = useCollectionData<Task>(
+    familyId ? query(tasksCol(familyId)) : null,
+    [familyId],
+  )
   const tasks = [...items].sort((a, b) => a.order - b.order)
   return { tasks, loading, error }
 }
 
-export function useRewards() {
-  const { items, loading, error } = useCollectionData<Reward>(query(rewardsCol), [])
+export function useRewards(familyId: FamilyId | null) {
+  const { items, loading, error } = useCollectionData<Reward>(
+    familyId ? query(rewardsCol(familyId)) : null,
+    [familyId],
+  )
   const rewards = [...items].sort((a, b) => a.order - b.order)
   return { rewards, loading, error }
 }
 
 /** All completions for one child (full history; used for streaks + totals). */
-export function useChildCompletions(childId: ChildId) {
+export function useChildCompletions(familyId: FamilyId | null, childId: ChildId | null) {
   const { items, loading, error } = useCollectionData<Completion>(
-    query(completionsCol, where('childId', '==', childId)),
-    [childId],
+    familyId && childId ? query(completionsCol(familyId), where('childId', '==', childId)) : null,
+    [familyId, childId],
   )
   return { completions: items, loading, error }
 }
 
-/** Completions across all children for a single day (parent "today" view). */
-export function useCompletionsForDate(dateKey: string) {
+/** All completions for the family on a single day (parent "today" view). */
+export function useCompletionsForDate(familyId: FamilyId | null, dateKey: string) {
   const { items, loading, error } = useCollectionData<Completion>(
-    query(completionsCol, where('date', '==', dateKey)),
-    [dateKey],
+    familyId ? query(completionsCol(familyId), where('date', '==', dateKey)) : null,
+    [familyId, dateKey],
   )
   return { completions: items, loading, error }
 }
 
-/** Reward claims for one child. */
-export function useChildClaims(childId: ChildId) {
+export function useChildClaims(familyId: FamilyId | null, childId: ChildId | null) {
   const { items, loading, error } = useCollectionData<RewardClaim>(
-    query(claimsCol, where('childId', '==', childId)),
-    [childId],
+    familyId && childId ? query(claimsCol(familyId), where('childId', '==', childId)) : null,
+    [familyId, childId],
   )
   return { claims: items, loading, error }
 }
 
-/** All reward claims (parent management view). */
-export function useAllClaims() {
-  const { items, loading, error } = useCollectionData<RewardClaim>(query(claimsCol), [])
+export function useAllClaims(familyId: FamilyId | null) {
+  const { items, loading, error } = useCollectionData<RewardClaim>(
+    familyId ? query(claimsCol(familyId)) : null,
+    [familyId],
+  )
   const claims = [...items].sort(
     (a, b) => (b.createdAt?.toMillis?.() ?? 0) - (a.createdAt?.toMillis?.() ?? 0),
   )

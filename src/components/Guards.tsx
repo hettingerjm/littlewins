@@ -3,15 +3,15 @@ import { Navigate, useLocation } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { Spinner } from './ui'
 
-/** Requires any signed-in session (child after PIN, or a parent). */
+/** Requires any signed-in session with a family (child after PIN, or parent). */
 export function RequireAuth({ children }: { children: ReactNode }) {
-  const { user, loading } = useAuth()
+  const { role, familyId, loading } = useAuth()
   if (loading) return <Spinner label="Loading…" />
-  if (!user) return <Navigate to="/" replace />
+  if (!role || !familyId) return <Navigate to="/" replace />
   return <>{children}</>
 }
 
-/** Requires a parent (email/password) session. */
+/** Requires a parent session. */
 export function RequireParent({ children }: { children: ReactNode }) {
   const { role, loading } = useAuth()
   const location = useLocation()

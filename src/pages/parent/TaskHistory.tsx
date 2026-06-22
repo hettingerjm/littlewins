@@ -1,36 +1,56 @@
-import { useMemo, useState } from 'react'
-import { CHILDREN } from '../../config'
-import { useChildCompletions, useTasks } from '../../hooks/data'
+import { useEffect, useMemo, useState } from 'react'
+import { useAuth } from '../../context/AuthContext'
+import { useChildCompletions, useChildren, useTasks } from '../../hooks/data'
 import { completionId, removeCompletion } from '../../lib/db'
 import { todayKey, formatLong } from '../../lib/dates'
 import { tasksForChildOn } from '../../lib/schedule'
 import { isDayComplete } from '../../lib/streak'
 import type { ChildId } from '../../types'
-import { Badge, PageHeader, Spinner } from '../../components/ui'
+import { Badge, EmptyState, PageHeader, Spinner } from '../../components/ui'
 
 export default function TaskHistory() {
-  const [childId, setChildId] = useState<ChildId>('emma')
+  const { familyId } = useAuth()
+  const { children, loading: childrenLoading } = useChildren(familyId)
+  const [childId, setChildId] = useState<ChildId>('')
   const [date, setDate] = useState<string>(todayKey())
-  const { tasks, loading: tasksLoading } = useTasks()
-  const { completions, loading: compLoading } = useChildCompletions(childId)
+
+  // Default to the first child once loaded.
+  useEffect(() => {
+    if (!childId && children.length > 0) setChildId(children[0].id)
+  }, [children, childId])
+
+  const { tasks, loading: tasksLoading } = useTasks(familyId)
+  const { completions, loading: compLoading } = useChildCompletions(familyId, childId || null)
 
   const dayCompletions = useMemo(
     () => completions.filter((c) => c.date === date),
     [completions, date],
   )
   const scheduled = useMemo(
-    () => tasksForChildOn(tasks, childId, date),
+    () => (childId ? tasksForChildOn(tasks, childId, date) : []),
     [tasks, childId, date],
   )
 
+  if (childrenLoading) return <Spinner label="Loading…" />
+  if (children.length === 0) {
+    return (
+      <>
+        <PageHeader title="Task history" />
+        <EmptyState emoji="🧒" title="No kids yet" hint="Add children from the Kids tab first." />
+      </>
+    )
+  }
+
   const doneIds = new Set(dayCompletions.map((c) => c.taskId))
   const points = dayCompletions.reduce((s, c) => s + (c.points ?? 0), 0)
-  const allComplete = !tasksLoading && !compLoading && isDayComplete(tasks, completions, childId, date)
+  const allComplete =
+    !tasksLoading && !compLoading && !!childId && isDayComplete(tasks, completions, childId, date)
 
   const onUndo = async (id: string) => {
+    if (!familyId) return
     if (!confirm('Remove this completion from history?')) return
     try {
-      await removeCompletion(id)
+      await removeCompletion(familyId, id)
     } catch (err) {
       console.error(err)
       alert('Could not remove that record.')
@@ -44,8 +64,8 @@ export default function TaskHistory() {
       <div className="card mb-6 flex flex-wrap items-end gap-4 p-4">
         <div>
           <span className="label">Child</span>
-          <div className="flex gap-2">
-            {CHILDREN.map((c) => (
+          <div className="flex flex-wrap gap-2">
+            {children.map((c) => (
               <button
                 key={c.id}
                 onClick={() => setChildId(c.id)}
@@ -101,10 +121,7 @@ export default function TaskHistory() {
                 const isDone = doneIds.has(task.id)
                 const compId = completionId(childId, task.id, date)
                 return (
-                  <li
-                    key={task.id}
-                    className="card flex items-center gap-3 p-3.5"
-                  >
+                  <li key={task.id} className="card flex items-center gap-3 p-3.5">
                     <span className={isDone ? 'text-emerald-500' : 'text-slate-300'}>
                       {isDone ? '✓' : '○'}
                     </span>
@@ -127,7 +144,6 @@ export default function TaskHistory() {
                 )
               })}
 
-              {/* Completions for tasks no longer scheduled (e.g. task later edited). */}
               {dayCompletions
                 .filter((c) => !scheduled.some((t) => t.id === c.taskId))
                 .map((c) => (

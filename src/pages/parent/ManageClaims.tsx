@@ -1,7 +1,6 @@
 import { useState } from 'react'
-import { getChild } from '../../config'
 import { useAuth } from '../../context/AuthContext'
-import { useAllClaims } from '../../hooks/data'
+import { useAllClaims, useChildren } from '../../hooks/data'
 import { decideClaim } from '../../lib/db'
 import { sound } from '../../lib/sound'
 import { confetti } from '../../lib/confetti'
@@ -18,19 +17,22 @@ const STATUS_TONE = {
 function formatWhen(claim: RewardClaim): string {
   const ms = claim.createdAt?.toMillis?.()
   if (!ms) return ''
-  const d = new Date(ms)
-  return d.toLocaleDateString(undefined, { month: 'short', day: 'numeric' })
+  return new Date(ms).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })
 }
 
 export default function ManageClaims() {
-  const { claims, loading } = useAllClaims()
-  const { user } = useAuth()
+  const { familyId, user } = useAuth()
+  const { claims, loading } = useAllClaims(familyId)
+  const { children } = useChildren(familyId)
   const [busyId, setBusyId] = useState<string | null>(null)
 
+  const childOf = (id: string) => children.find((c) => c.id === id)
+
   const decide = async (claim: RewardClaim, status: ClaimStatus) => {
+    if (!familyId) return
     setBusyId(claim.id)
     try {
-      await decideClaim(claim.id, status, user?.uid ?? 'parent')
+      await decideClaim(familyId, claim.id, status, user?.uid ?? 'parent')
       if (status === 'fulfilled') {
         void sound.play('celebrate')
         confetti({ originY: 0.35, count: 120 })
@@ -64,7 +66,13 @@ export default function ManageClaims() {
       ) : (
         <ul className="space-y-2">
           {pending.map((claim) => (
-            <ClaimItem key={claim.id} claim={claim} busy={busyId === claim.id}>
+            <ClaimItem
+              key={claim.id}
+              claim={claim}
+              busy={busyId === claim.id}
+              emoji={childOf(claim.childId)?.emoji ?? '🎁'}
+              name={childOf(claim.childId)?.name ?? claim.childId}
+            >
               <button
                 onClick={() => decide(claim, 'approved')}
                 disabled={busyId === claim.id}
@@ -98,7 +106,13 @@ export default function ManageClaims() {
           </h2>
           <ul className="space-y-2">
             {decided.map((claim) => (
-              <ClaimItem key={claim.id} claim={claim} busy={busyId === claim.id}>
+              <ClaimItem
+                key={claim.id}
+                claim={claim}
+                busy={busyId === claim.id}
+                emoji={childOf(claim.childId)?.emoji ?? '🎁'}
+                name={childOf(claim.childId)?.name ?? claim.childId}
+              >
                 {claim.status === 'approved' && (
                   <button
                     onClick={() => decide(claim, 'fulfilled')}
@@ -120,22 +134,25 @@ export default function ManageClaims() {
 function ClaimItem({
   claim,
   busy,
+  emoji,
+  name,
   children,
 }: {
   claim: RewardClaim
   busy: boolean
+  emoji: string
+  name: string
   children?: React.ReactNode
 }) {
-  const child = getChild(claim.childId)
   return (
     <li className={`card flex flex-wrap items-center gap-3 p-4 ${busy ? 'opacity-60' : ''}`}>
       <span className="text-2xl" aria-hidden>
-        {child?.emoji ?? '🎁'}
+        {emoji}
       </span>
       <div className="min-w-0 flex-1">
         <div className="font-bold text-slate-800">{claim.rewardTitle ?? 'Reward'}</div>
         <div className="text-xs text-slate-400">
-          {child?.name ?? claim.childId} • {claim.cost} points • {formatWhen(claim)}
+          {name} • {claim.cost} points • {formatWhen(claim)}
         </div>
       </div>
       <Badge tone={STATUS_TONE[claim.status]}>{claim.status}</Badge>

@@ -1,12 +1,8 @@
 import { FormEvent, useState } from 'react'
+import { useAuth } from '../../context/AuthContext'
 import { useRewards } from '../../hooks/data'
-import {
-  createReward,
-  deleteReward,
-  updateReward,
-  type RewardInput,
-} from '../../lib/db'
-import type { Reward } from '../../types'
+import { createReward, deleteReward, updateReward, type RewardInput } from '../../lib/db'
+import type { FamilyId, Reward } from '../../types'
 import { Badge, EmptyState, PageHeader, Spinner } from '../../components/ui'
 
 const emptyDraft = (order: number): RewardInput => ({
@@ -18,7 +14,8 @@ const emptyDraft = (order: number): RewardInput => ({
 })
 
 export default function ManageRewards() {
-  const { rewards, loading } = useRewards()
+  const { familyId } = useAuth()
+  const { rewards, loading } = useRewards(familyId)
   const [editing, setEditing] = useState<Reward | null>(null)
   const [creating, setCreating] = useState(false)
 
@@ -66,8 +63,9 @@ export default function ManageRewards() {
         </ul>
       )}
 
-      {(creating || editing) && (
+      {(creating || editing) && familyId && (
         <RewardForm
+          familyId={familyId}
           reward={editing}
           defaultOrder={rewards.length}
           onClose={() => {
@@ -81,10 +79,12 @@ export default function ManageRewards() {
 }
 
 function RewardForm({
+  familyId,
   reward,
   defaultOrder,
   onClose,
 }: {
+  familyId: FamilyId
   reward: Reward | null
   defaultOrder: number
   onClose: () => void
@@ -115,8 +115,8 @@ function RewardForm({
         description: draft.description?.trim() || undefined,
         cost: Math.max(0, Math.round(draft.cost)),
       }
-      if (reward) await updateReward(reward.id, clean)
-      else await createReward(clean)
+      if (reward) await updateReward(familyId, reward.id, clean)
+      else await createReward(familyId, clean)
       onClose()
     } catch (err) {
       console.error(err)
@@ -131,7 +131,7 @@ function RewardForm({
     if (!confirm(`Delete "${reward.title}"?`)) return
     setBusy(true)
     try {
-      await deleteReward(reward.id)
+      await deleteReward(familyId, reward.id)
       onClose()
     } catch (err) {
       console.error(err)

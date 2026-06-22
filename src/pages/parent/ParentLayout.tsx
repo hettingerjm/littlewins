@@ -8,12 +8,13 @@ const tabs = [
   { to: '/parent/tasks', label: 'Tasks', emoji: '✅', end: false },
   { to: '/parent/rewards', label: 'Rewards', emoji: '🎁', end: false },
   { to: '/parent/claims', label: 'Claims', emoji: '📨', end: false },
+  { to: '/parent/kids', label: 'Kids', emoji: '🧒', end: false },
 ]
 
 export default function ParentLayout() {
   const navigate = useNavigate()
-  const { signOutAll } = useAuth()
-  const { claims } = useAllClaims()
+  const { signOutAll, familyId } = useAuth()
+  const { claims } = useAllClaims(familyId)
   const pendingCount = claims.filter((c) => c.status === 'pending').length
 
   return (
@@ -22,15 +23,28 @@ export default function ParentLayout() {
         <div className="mx-auto flex max-w-4xl items-center justify-between px-4 py-3">
           <div className="flex items-center gap-2 font-black text-slate-900">
             <span aria-hidden>⭐</span> Parent Dashboard
+            {familyId && (
+              <span className="rounded-full bg-slate-100 px-2 py-0.5 text-xs font-bold capitalize text-slate-500">
+                {familyId}
+              </span>
+            )}
           </div>
-          <button
-            onClick={() => {
-              void signOutAll().then(() => navigate('/', { replace: true }))
-            }}
-            className="text-sm font-bold text-slate-400 hover:text-slate-600"
-          >
-            Sign out
-          </button>
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => navigate('/who')}
+              className="text-sm font-bold text-slate-400 hover:text-slate-600"
+            >
+              Kids' app
+            </button>
+            <button
+              onClick={() => {
+                void signOutAll().then(() => navigate('/', { replace: true }))
+              }}
+              className="text-sm font-bold text-slate-400 hover:text-slate-600"
+            >
+              Sign out
+            </button>
+          </div>
         </div>
         <nav className="mx-auto flex max-w-4xl gap-1 overflow-x-auto px-2 pb-2">
           {tabs.map((tab) => (

@@ -2,7 +2,8 @@ import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
 import { AuthProvider } from './context/AuthContext'
 import { RequireAuth, RequireParent } from './components/Guards'
 
-import LandingPin from './pages/LandingPin'
+import LandingHome from './pages/LandingHome'
+import FamilyPin from './pages/FamilyPin'
 import ProfileSelect from './pages/ProfileSelect'
 import ChildHome from './pages/ChildHome'
 import RewardsPage from './pages/RewardsPage'
@@ -14,16 +15,18 @@ import TaskHistory from './pages/parent/TaskHistory'
 import ManageTasks from './pages/parent/ManageTasks'
 import ManageRewards from './pages/parent/ManageRewards'
 import ManageClaims from './pages/parent/ManageClaims'
+import ManageChildren from './pages/parent/ManageChildren'
 
 export default function App() {
   return (
     <AuthProvider>
       <BrowserRouter>
         <Routes>
-          {/* Public landing PIN gate */}
-          <Route path="/" element={<LandingPin />} />
+          {/* Public entry */}
+          <Route path="/" element={<LandingHome />} />
+          <Route path="/f/:familyId" element={<FamilyPin />} />
 
-          {/* Child app (any signed-in session) */}
+          {/* Child app (any signed-in family session) */}
           <Route
             path="/who"
             element={
@@ -64,6 +67,7 @@ export default function App() {
             <Route path="tasks" element={<ManageTasks />} />
             <Route path="rewards" element={<ManageRewards />} />
             <Route path="claims" element={<ManageClaims />} />
+            <Route path="kids" element={<ManageChildren />} />
           </Route>
 
           <Route path="*" element={<Navigate to="/" replace />} />

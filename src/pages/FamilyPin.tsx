@@ -1,27 +1,28 @@
 import { useEffect, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useParams } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { sound } from '../lib/sound'
 import { SoundToggle } from '../components/SoundToggle'
 
-export default function LandingPin() {
-  const { enterPin, user, role } = useAuth()
+export default function FamilyPin() {
+  const { familyId = '' } = useParams<{ familyId: string }>()
+  const { enterPin, role, familyId: sessionFamily } = useAuth()
   const navigate = useNavigate()
   const [pin, setPin] = useState('')
   const [error, setError] = useState(false)
   const [wrongKey, setWrongKey] = useState(0)
   const [busy, setBusy] = useState(false)
 
-  // If already signed in (returning device), skip straight ahead.
+  // Already in this family's session? Skip ahead.
   useEffect(() => {
     if (role === 'parent') navigate('/parent', { replace: true })
-    else if (user) navigate('/who', { replace: true })
-  }, [user, role, navigate])
+    else if (role === 'child' && sessionFamily === familyId) navigate('/who', { replace: true })
+  }, [role, sessionFamily, familyId, navigate])
 
-  const append = (digit: string) => {
+  const append = (d: string) => {
     setError(false)
     void sound.play('tap')
-    setPin((p) => (p.length >= 8 ? p : p + digit))
+    setPin((p) => (p.length >= 10 ? p : p + d))
   }
   const backspace = () => {
     setError(false)
@@ -30,9 +31,10 @@ export default function LandingPin() {
   }
 
   const submit = async () => {
+    if (!pin || busy) return
     setBusy(true)
     try {
-      const ok = await enterPin(pin)
+      const ok = await enterPin(familyId, pin)
       if (ok) {
         void sound.play('unlock')
         navigate('/who', { replace: true })
@@ -61,10 +63,16 @@ export default function LandingPin() {
           ⭐
         </div>
         <h1 className="mt-3 text-3xl font-black tracking-tight text-slate-900">Little Wins</h1>
-        <p className="mt-1 text-slate-500">Enter the family PIN</p>
+        <p className="mt-1 text-slate-500">
+          Family PIN for <span className="font-bold capitalize">{familyId}</span>
+        </p>
 
-        <div key={wrongKey} className={`mt-6 flex justify-center gap-2 ${error ? 'animate-shake' : ''}`} aria-hidden>
-          {Array.from({ length: 4 }).map((_, i) => (
+        <div
+          key={wrongKey}
+          className={`mt-6 flex justify-center gap-2 ${error ? 'animate-shake' : ''}`}
+          aria-hidden
+        >
+          {Array.from({ length: Math.max(4, pin.length) }).map((_, i) => (
             <span
               key={i}
               className={`h-4 w-4 rounded-full transition ${
@@ -106,10 +114,10 @@ export default function LandingPin() {
         </div>
 
         <button
-          onClick={() => navigate('/parent/login')}
+          onClick={() => navigate('/')}
           className="mt-8 text-sm font-bold text-slate-400 hover:text-slate-600"
         >
-          I'm a parent →
+          ← Different family
         </button>
       </div>
     </div>

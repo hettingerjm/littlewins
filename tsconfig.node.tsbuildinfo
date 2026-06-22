@@ -1,1 +1,1 @@
-{"root":["./vite.config.ts","./scripts/seed.ts"],"version":"5.9.3"}
+{"root":["./vite.config.ts","./scripts/admin.ts"],"version":"5.9.3"}

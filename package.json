@@ -10,7 +10,7 @@
     "preview": "vite preview",
     "typecheck": "tsc -b --noEmit",
     "lint": "eslint . --ext ts,tsx",
-    "seed": "tsx scripts/seed.ts",
+    "admin": "tsx scripts/admin.ts",
     "emulators": "firebase emulators:start"
   },
   "dependencies": {

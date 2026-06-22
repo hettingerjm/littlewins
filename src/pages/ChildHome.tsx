@@ -1,27 +1,31 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
-import { getChild } from '../config'
-import { useChildCompletions, useTasks } from '../hooks/data'
+import { useAuth } from '../context/AuthContext'
+import { useChildCompletions, useChildren, useTasks } from '../hooks/data'
 import { completeTask, completionId } from '../lib/db'
 import { todayKey, formatLong } from '../lib/dates'
 import { tasksForChildOn, scheduleLabel } from '../lib/schedule'
 import { earnedOn, totalEarned } from '../lib/points'
 import { computeStreak } from '../lib/streak'
+import { getTheme } from '../config'
 import { sound } from '../lib/sound'
 import { confetti } from '../lib/confetti'
-import type { ChildId, Task } from '../types'
+import type { ChildId, FamilyId, Task } from '../types'
 import { Spinner, StatCard } from '../components/ui'
 import { SoundToggle } from '../components/SoundToggle'
 
 export default function ChildHome() {
-  const { childId } = useParams<{ childId: string }>()
+  const { childId = '' } = useParams<{ childId: string }>()
   const navigate = useNavigate()
-  const child = childId ? getChild(childId) : undefined
+  const { familyId } = useAuth()
 
-  const { tasks, loading: tasksLoading } = useTasks()
-  const { completions, loading: compLoading } = useChildCompletions((childId ?? 'emma') as ChildId)
+  const { children, loading: childrenLoading } = useChildren(familyId)
+  const { tasks, loading: tasksLoading } = useTasks(familyId)
+  const { completions, loading: compLoading } = useChildCompletions(familyId, childId)
 
+  const child = children.find((c) => c.id === childId)
   const today = todayKey()
+
   const todays = useMemo(
     () => (child ? tasksForChildOn(tasks, child.id, today) : []),
     [tasks, child, today],
@@ -32,7 +36,7 @@ export default function ChildHome() {
     return set
   }, [completions, today])
 
-  // Fire a celebration the moment the day flips from incomplete -> all done.
+  // Celebrate the moment the day flips from incomplete -> all done.
   const celebratedRef = useRef<boolean | null>(null)
   useEffect(() => {
     if (!child || tasksLoading || compLoading) return
@@ -40,7 +44,7 @@ export default function ChildHome() {
     const completed = todays.filter((t) => doneToday.has(t.id)).length
     const done = total > 0 && completed === total
     if (celebratedRef.current === null) {
-      celebratedRef.current = done // seed on first load; don't celebrate
+      celebratedRef.current = done
       return
     }
     if (done && !celebratedRef.current) {
@@ -49,6 +53,8 @@ export default function ChildHome() {
     }
     celebratedRef.current = done
   }, [child, todays, doneToday, tasksLoading, compLoading])
+
+  if (childrenLoading || tasksLoading || compLoading) return <Spinner label="Loading your day…" />
 
   if (!child) {
     return (
@@ -61,8 +67,7 @@ export default function ChildHome() {
     )
   }
 
-  if (tasksLoading || compLoading) return <Spinner label="Loading your day…" />
-
+  const theme = getTheme(child.theme)
   const total = todays.length
   const completed = todays.filter((t) => doneToday.has(t.id)).length
   const pointsToday = earnedOn(completions, child.id, today)
@@ -71,14 +76,8 @@ export default function ChildHome() {
   const allDone = total > 0 && completed === total
   const progressPct = total === 0 ? 0 : Math.round((completed / total) * 100)
 
-  const theme =
-    child.theme === 'emma'
-      ? { bar: 'bg-pink-500', ring: 'ring-pink-300', accent: 'text-pink-600', soft: 'bg-pink-50' }
-      : { bar: 'bg-indigo-500', ring: 'ring-indigo-300', accent: 'text-indigo-600', soft: 'bg-indigo-50' }
-
   return (
     <div className="mx-auto max-w-2xl px-4 pb-16 pt-6">
-      {/* Header */}
       <div className="mb-5 flex items-center justify-between">
         <button onClick={() => navigate('/who')} className="text-2xl" aria-label="Switch profile">
           ‹
@@ -100,7 +99,6 @@ export default function ChildHome() {
         </div>
       </div>
 
-      {/* Stats */}
       <div className="mb-5 grid grid-cols-3 gap-3">
         <StatCard label="Today" value={pointsToday} emoji="✨" accent={theme.accent} />
         <StatCard label="Total points" value={totalPoints} emoji="⭐" />
@@ -116,7 +114,6 @@ export default function ChildHome() {
         />
       </div>
 
-      {/* Progress */}
       <div className="card mb-6 p-4">
         <div className="mb-2 flex items-center justify-between text-sm font-bold text-slate-600">
           <span>Today's progress</span>
@@ -137,7 +134,6 @@ export default function ChildHome() {
         )}
       </div>
 
-      {/* Tasks */}
       {total === 0 ? (
         <div className="card px-6 py-12 text-center text-slate-400">
           <div className="text-5xl">🌤️</div>
@@ -149,6 +145,7 @@ export default function ChildHome() {
           {todays.map((task, i) => (
             <TaskRow
               key={task.id}
+              familyId={familyId!}
               task={task}
               childId={child.id}
               dateKey={today}
@@ -164,6 +161,7 @@ export default function ChildHome() {
 }
 
 function TaskRow({
+  familyId,
   task,
   childId,
   dateKey,
@@ -171,6 +169,7 @@ function TaskRow({
   theme,
   index,
 }: {
+  familyId: FamilyId
   task: Task
   childId: ChildId
   dateKey: string
@@ -185,11 +184,11 @@ function TaskRow({
     setBusy(true)
     void sound.play('check')
     try {
-      await completeTask(childId, task, dateKey)
+      await completeTask(familyId, childId, task, dateKey)
     } catch (err) {
       console.error('Could not complete task', completionId(childId, task.id, dateKey), err)
       void sound.play('error')
-      alert('Hmm, that didn\'t save. Please try again.')
+      alert("Hmm, that didn't save. Please try again.")
     } finally {
       setBusy(false)
     }
