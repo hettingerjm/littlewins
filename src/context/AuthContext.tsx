@@ -7,16 +7,25 @@ import {
   type ReactNode,
 } from 'react'
 import {
+  GoogleAuthProvider,
   onAuthStateChanged,
   signInAnonymously,
-  signInWithEmailAndPassword,
+  signInWithPopup,
   signOut,
   type User,
 } from 'firebase/auth'
 import { auth } from '../firebase'
-import { FAMILY_PIN } from '../config'
+import { FAMILY_PIN, isParentEmail } from '../config'
 
 export type Role = 'parent' | 'child' | null
+
+/** Thrown when a Google account signs in but isn't on the parent allow-list. */
+export class NotAuthorizedError extends Error {
+  constructor(public email: string | null) {
+    super('This Google account is not authorized as a parent.')
+    this.name = 'NotAuthorizedError'
+  }
+}
 
 interface AuthState {
   user: User | null
@@ -24,8 +33,8 @@ interface AuthState {
   loading: boolean
   /** Validate the family PIN; on success, sign in anonymously (child session). */
   enterPin: (pin: string) => Promise<boolean>
-  /** Parent sign-in with email + password. */
-  parentSignIn: (email: string, password: string) => Promise<void>
+  /** Parent sign-in with Google. Rejects (and signs out) if not allow-listed. */
+  parentSignInWithGoogle: () => Promise<void>
   /** Sign out the current session (parent or child). */
   signOutAll: () => Promise<void>
 }
@@ -34,8 +43,12 @@ const AuthContext = createContext<AuthState | undefined>(undefined)
 
 function roleFor(user: User | null): Role {
   if (!user) return null
-  // A parent authenticates with email/password; a child is anonymous.
-  return user.isAnonymous ? 'child' : 'parent'
+  // A child is anonymous (granted only after the family PIN).
+  if (user.isAnonymous) return 'child'
+  // A parent is a Google account on the allow-list. A non-allow-listed Google
+  // account gets NO role — it can authenticate but cannot do anything.
+  if (isParentEmail(user.email)) return 'parent'
+  return null
 }
 
 export function AuthProvider({ children }: { children: ReactNode }) {
@@ -62,8 +75,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         }
         return true
       },
-      async parentSignIn(email: string, password: string) {
-        await signInWithEmailAndPassword(auth, email.trim(), password)
+      async parentSignInWithGoogle() {
+        const provider = new GoogleAuthProvider()
+        provider.setCustomParameters({ prompt: 'select_account' })
+        const cred = await signInWithPopup(auth, provider)
+        if (!isParentEmail(cred.user.email)) {
+          const email = cred.user.email
+          await signOut(auth)
+          throw new NotAuthorizedError(email)
+        }
       },
       async signOutAll() {
         await signOut(auth)

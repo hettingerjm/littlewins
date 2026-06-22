@@ -38,6 +38,7 @@ jobs:
           VITE_FIREBASE_MESSAGING_SENDER_ID: ${{ secrets.VITE_FIREBASE_MESSAGING_SENDER_ID }}
           VITE_FIREBASE_APP_ID: ${{ secrets.VITE_FIREBASE_APP_ID }}
           VITE_FAMILY_PIN: ${{ secrets.VITE_FAMILY_PIN }}
+          VITE_PARENT_EMAILS: ${{ secrets.VITE_PARENT_EMAILS }}
         run: npm run build
 
       - name: Write service account credentials

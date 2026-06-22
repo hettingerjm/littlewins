@@ -25,3 +25,4 @@ jobs:
           VITE_FIREBASE_MESSAGING_SENDER_ID: '0'
           VITE_FIREBASE_APP_ID: ci-placeholder
           VITE_FAMILY_PIN: '0000'
+          VITE_PARENT_EMAILS: ci@example.com

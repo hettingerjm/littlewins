@@ -27,7 +27,7 @@ Built with **React + TypeScript + Vite**, **Tailwind CSS**, **Firebase Auth**,
    can **request** one. Requests start as **pending** until a parent decides.
 
 ### Parents
-- Sign in with **Firebase Auth (email/password)**.
+- Sign in with **Google** (only allow-listed emails get parent access).
 - **Today:** live progress for both children.
 - **History:** browse completions by child and date (and undo records).
 - **Tasks:** add / edit / deactivate / reorder. Each task has a title,
@@ -63,10 +63,13 @@ rules ([`firestore.rules`](./firestore.rules)):
 | --- | --- | --- |
 | **Public** (no auth) | — | **Nothing.** Default deny. |
 | **Child** | Anonymous auth, granted **only after the family PIN** is entered | Read tasks/rewards; **create** completions and **create pending** reward claims. Cannot edit tasks/rewards, change a claim's status, or overwrite/delete completions. |
-| **Parent** | Email/password | Everything: manage tasks & rewards, approve/fulfill claims, correct history. |
+| **Parent** | Google sign-in, email on the allow-list | Everything: manage tasks & rewards, approve/fulfill claims, correct history. |
 
-- A **child** is detected as the `anonymous` sign-in provider; a **parent** as
-  the `password` provider.
+- A **child** is detected as the `anonymous` sign-in provider; a **parent** is a
+  Google account whose **verified email is on the allow-list** in both
+  `firestore.rules` (`parentEmails()`) and the app (`VITE_PARENT_EMAILS`). Any
+  Google account can *authenticate*, but only allow-listed emails get any
+  access — a non-listed account has no powers at all.
 - Completion writes are validated against the referenced task (must be active,
   assigned to that child, and award exactly the task's points) so a child can't
   mint arbitrary points.
@@ -77,7 +80,8 @@ rules ([`firestore.rules`](./firestore.rules)):
 `VITE_FAMILY_PIN` is baked into the public JS bundle at build time, so it is
 **not a real secret** — it's a friction gate so casual visitors can't poke at
 the kids' screens. The real security boundary is: every read/write requires
-authentication, and all parent actions require email/password auth. Rotate the
+authentication, and all parent actions require an allow-listed Google account.
+Rotate the
 PIN by changing the secret and redeploying. If you later want the PIN itself
 enforced server-side, add a callable Cloud Function that verifies it and mints a
 custom claim.
@@ -89,15 +93,16 @@ custom claim.
 ### 1. Create a Firebase project
 - In the [Firebase console](https://console.firebase.google.com/): create a
   project, add a **Web app**, and copy the config values.
-- Enable **Authentication → Sign-in method → Anonymous** and **Email/Password**.
+- Enable **Authentication → Sign-in method → Anonymous** and **Google**.
 - Create your **Cloud Firestore** database (production mode).
-- Create at least one **parent user** under Authentication → Users
-  (Email/Password).
+- Add your parent Google email to the allow-list in **two** places:
+  `VITE_PARENT_EMAILS` (`.env`) and `parentEmails()` in
+  [`firestore.rules`](./firestore.rules).
 
 ### 2. Configure env
 ```bash
 cp .env.example .env
-# fill in VITE_FIREBASE_* and choose a VITE_FAMILY_PIN
+# fill in VITE_FIREBASE_*, choose a VITE_FAMILY_PIN, set VITE_PARENT_EMAILS
 ```
 
 ### 3. Install & run
@@ -107,12 +112,11 @@ npm run dev
 ```
 
 ### 4. Seed the initial tasks
-Tasks/rewards can only be written by a parent, so the seed script signs in as
-one:
+The seed script uses the **Admin SDK** (bypasses rules), so it needs a
+service-account key — the same one used for deploys (Firebase console → Project
+settings → Service accounts → *Generate new private key*):
 ```bash
-SEED_PARENT_EMAIL=you@example.com \
-SEED_PARENT_PASSWORD=yourpassword \
-npm run seed
+GOOGLE_APPLICATION_CREDENTIALS=./serviceAccount.json npm run seed
 ```
 (Add `--force` to re-seed even if tasks already exist.) You can also add tasks
 manually from the parent **Tasks** tab.
@@ -153,6 +157,7 @@ indexes**.
    | `VITE_FIREBASE_MESSAGING_SENDER_ID` | from web config |
    | `VITE_FIREBASE_APP_ID` | from web config |
    | `VITE_FAMILY_PIN` | the family PIN |
+   | `VITE_PARENT_EMAILS` | comma-separated parent Google emails (match `parentEmails()` in the rules) |
 
 5. Push to `main`. The site deploys to Firebase Hosting and the rules go live.
 
@@ -178,7 +183,7 @@ src/
     streak.ts          Daily streak computation
     db.ts              Firestore collection refs + mutations
   hooks/data.ts        Realtime Firestore subscriptions
-  context/AuthContext  PIN → anonymous, parent email/password
+  context/AuthContext  PIN → anonymous, parent Google sign-in (allow-list)
   components/          UI primitives + route guards
   pages/               Child screens + parent/ dashboard screens
 firestore.rules        Security rules (the real access boundary)

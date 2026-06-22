@@ -13,13 +13,13 @@ rules_version = '2';
 //                                           Cannot edit tasks/rewards, cannot
 //                                           change a claim's status, cannot
 //                                           overwrite/delete completions.
-//   * PARENT (email/password auth)       -> full control: manage tasks &
+//   * PARENT (allow-listed Google account) -> full control: manage tasks &
 //                                           rewards, approve/fulfill claims,
 //                                           correct/delete completion history.
 //
-// A child is identified by the anonymous provider; a parent by the password
-// provider. No personal info (names beyond the two fixed profile ids, emails,
-// addresses, etc.) is stored in any document.
+// A child is identified by the anonymous provider; a parent by a verified
+// Google email on the allow-list below. No personal info (names beyond the two
+// fixed profile ids, emails, addresses, etc.) is stored in any document.
 // =============================================================================
 
 service cloud.firestore {
@@ -30,13 +30,18 @@ service cloud.firestore {
       return request.auth != null;
     }
 
-    function provider() {
-      return request.auth.token.firebase.sign_in_provider;
+    // Google accounts allowed to act as parents. Keep this list in sync with
+    // VITE_PARENT_EMAILS in the app. Because parents sign in with Google (and
+    // any Google account can authenticate), THIS allow-list is what actually
+    // grants parent powers. Emails are compared lower-cased.
+    function parentEmails() {
+      return ['hettingerjm@gmail.com'];
     }
 
-    // Parents authenticate with email/password.
     function isParent() {
-      return isSignedIn() && provider() == 'password';
+      return isSignedIn()
+        && request.auth.token.email_verified == true
+        && request.auth.token.email.lower() in parentEmails();
     }
 
     // The two (and only two) fixed child profiles.

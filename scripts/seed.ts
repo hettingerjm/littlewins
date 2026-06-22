@@ -1,33 +1,23 @@
 /**
- * Seed the initial tasks (and a few sample rewards) into Firestore.
+ * Seed the initial tasks (and a few sample rewards) into Firestore using the
+ * Firebase Admin SDK. The Admin SDK runs with full privileges and bypasses
+ * security rules, so seeding does not depend on how parents sign in.
  *
- * Because Firestore rules require a parent (email/password) to write tasks and
- * rewards, this script signs in with a parent account using the client SDK.
+ * Auth: provide a service-account key (the same one used for GitHub Actions
+ * deploys). Either set GOOGLE_APPLICATION_CREDENTIALS to its path, or drop the
+ * file at ./serviceAccount.json (gitignored).
  *
- * Usage:
- *   1. Create a parent user in Firebase Auth (Email/Password).
- *   2. Copy .env.example -> .env and fill in the VITE_FIREBASE_* values.
- *   3. Run:
- *        SEED_PARENT_EMAIL=you@example.com \
- *        SEED_PARENT_PASSWORD=yourpassword \
- *        npm run seed
+ *   # generate the key: Firebase console -> Project settings -> Service
+ *   #   accounts -> Generate new private key
+ *   GOOGLE_APPLICATION_CREDENTIALS=./serviceAccount.json npm run seed
  *
  * Pass --force to seed even if tasks already exist.
  */
 import 'dotenv/config'
-import { initializeApp } from 'firebase/app'
-import { getAuth, signInWithEmailAndPassword } from 'firebase/auth'
-import { addDoc, collection, getDocs, getFirestore } from 'firebase/firestore'
+import { existsSync, readFileSync } from 'node:fs'
+import { cert, initializeApp, type ServiceAccount } from 'firebase-admin/app'
+import { getFirestore } from 'firebase-admin/firestore'
 import type { ChildId, ScheduleType } from '../src/types'
-
-const firebaseConfig = {
-  apiKey: process.env.VITE_FIREBASE_API_KEY,
-  authDomain: process.env.VITE_FIREBASE_AUTH_DOMAIN,
-  projectId: process.env.VITE_FIREBASE_PROJECT_ID,
-  storageBucket: process.env.VITE_FIREBASE_STORAGE_BUCKET,
-  messagingSenderId: process.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
-  appId: process.env.VITE_FIREBASE_APP_ID,
-}
 
 interface SeedTask {
   title: string
@@ -70,31 +60,29 @@ const REWARDS = [
   { title: 'Choose dinner', description: 'Pick what we eat one night.', cost: 25 },
 ]
 
+function loadServiceAccount(): ServiceAccount {
+  const path = process.env.GOOGLE_APPLICATION_CREDENTIALS || './serviceAccount.json'
+  if (!existsSync(path)) {
+    throw new Error(
+      `Service account key not found at "${path}". Generate one in the Firebase ` +
+        'console (Project settings -> Service accounts -> Generate new private key) ' +
+        'and set GOOGLE_APPLICATION_CREDENTIALS to its path, or save it as ./serviceAccount.json.',
+    )
+  }
+  return JSON.parse(readFileSync(path, 'utf8')) as ServiceAccount
+}
+
 async function main() {
   const force = process.argv.includes('--force')
-  const email = process.env.SEED_PARENT_EMAIL
-  const password = process.env.SEED_PARENT_PASSWORD
+  const serviceAccount = loadServiceAccount()
 
-  if (!firebaseConfig.apiKey || !firebaseConfig.projectId) {
-    throw new Error('Missing VITE_FIREBASE_* env vars. Did you create .env?')
-  }
-  if (!email || !password) {
-    throw new Error('Set SEED_PARENT_EMAIL and SEED_PARENT_PASSWORD env vars (a parent account).')
-  }
+  initializeApp({ credential: cert(serviceAccount) })
+  const db = getFirestore()
 
-  const app = initializeApp(firebaseConfig)
-  const auth = getAuth(app)
-  const db = getFirestore(app)
-
-  console.log(`Signing in as ${email}…`)
-  await signInWithEmailAndPassword(auth, email, password)
-
-  const tasksCol = collection(db, 'tasks')
-  const existing = await getDocs(tasksCol)
+  const tasksCol = db.collection('tasks')
+  const existing = await tasksCol.limit(1).get()
   if (!existing.empty && !force) {
-    console.log(
-      `Found ${existing.size} existing task(s). Skipping seed. Pass --force to seed anyway.`,
-    )
+    console.log('Tasks already exist. Skipping seed. Pass --force to seed anyway.')
     process.exit(0)
   }
 
@@ -112,12 +100,12 @@ async function main() {
       assignedTo: t.assignedTo,
     }
     if (t.linkUrl) data.linkUrl = t.linkUrl
-    await addDoc(tasksCol, data)
+    await tasksCol.add(data)
     console.log(`  + ${t.title} (${t.assignedTo.join(', ')})`)
   }
 
-  const rewardsCol = collection(db, 'rewards')
-  const existingRewards = await getDocs(rewardsCol)
+  const rewardsCol = db.collection('rewards')
+  const existingRewards = await rewardsCol.limit(1).get()
   if (existingRewards.empty || force) {
     console.log('Seeding sample rewards…')
     let rOrder = 0
@@ -129,7 +117,7 @@ async function main() {
         order: rOrder++,
       }
       if (r.description) data.description = r.description
-      await addDoc(rewardsCol, data)
+      await rewardsCol.add(data)
       console.log(`  + ${r.title} (${r.cost} pts)`)
     }
   }
