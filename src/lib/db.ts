@@ -70,6 +70,16 @@ export async function deleteChild(fid: FamilyId, id: ChildId): Promise<void> {
   await deleteDoc(doc(childrenCol(fid), id))
 }
 
+/** A child customizing their own look — only emoji + theme (allowed by rules). */
+export async function updateChildAppearance(
+  fid: FamilyId,
+  id: ChildId,
+  emoji: string,
+  theme: ThemeKey,
+): Promise<void> {
+  await updateDoc(doc(childrenCol(fid), id), { emoji, theme })
+}
+
 // ---- tasks (parent only) ----------------------------------------------------
 
 export type TaskInput = Omit<Task, 'id'>

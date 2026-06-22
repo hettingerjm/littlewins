@@ -1,16 +1,16 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
-import { useChildCompletions, useChildren, useTasks } from '../hooks/data'
-import { completeTask, completionId } from '../lib/db'
+import { useChildClaims, useChildCompletions, useChildren, useTasks } from '../hooks/data'
+import { completeTask, completionId, updateChildAppearance } from '../lib/db'
 import { todayKey, formatLong } from '../lib/dates'
 import { tasksForChildOn, scheduleLabel } from '../lib/schedule'
-import { earnedOn, totalEarned } from '../lib/points'
+import { earnedOn, totalEarned, availableBalance } from '../lib/points'
 import { computeStreak } from '../lib/streak'
-import { getTheme } from '../config'
+import { getTheme, KID_EMOJIS, THEME_KEYS } from '../config'
 import { sound } from '../lib/sound'
 import { confetti } from '../lib/confetti'
-import type { ChildId, FamilyId, Task } from '../types'
+import type { Child, ChildId, FamilyId, Task, ThemeKey } from '../types'
 import { Spinner, StatCard } from '../components/ui'
 import { SoundToggle } from '../components/SoundToggle'
 
@@ -22,6 +22,8 @@ export default function ChildHome() {
   const { children, loading: childrenLoading } = useChildren(familyId)
   const { tasks, loading: tasksLoading } = useTasks(familyId)
   const { completions, loading: compLoading } = useChildCompletions(familyId, childId)
+  const { claims } = useChildClaims(familyId, childId)
+  const [customizing, setCustomizing] = useState(false)
 
   const child = children.find((c) => c.id === childId)
   const today = todayKey()
@@ -73,6 +75,7 @@ export default function ChildHome() {
   const pointsToday = earnedOn(completions, child.id, today)
   const totalPoints = totalEarned(completions, child.id)
   const streak = computeStreak(tasks, completions, child.id, today)
+  const balance = availableBalance(completions, claims, child.id)
   const allDone = total > 0 && completed === total
   const progressPct = total === 0 ? 0 : Math.round((completed / total) * 100)
 
@@ -83,20 +86,24 @@ export default function ChildHome() {
           ‹
         </button>
         <div className="flex items-center gap-2">
-          <span className="text-3xl" aria-hidden>
+          <button
+            onClick={() => {
+              void sound.play('tap')
+              setCustomizing(true)
+            }}
+            className="relative text-3xl transition active:scale-90"
+            aria-label="Change my icon and color"
+            title="Tap to change your icon & color"
+          >
             {child.emoji}
-          </span>
+            <span className="absolute -bottom-1 -right-1 text-[10px]">✏️</span>
+          </button>
           <div>
             <h1 className="text-xl font-black leading-none text-slate-900">{child.name}</h1>
             <p className="text-xs text-slate-400">{formatLong(today)}</p>
           </div>
         </div>
-        <div className="flex items-center gap-2">
-          <SoundToggle />
-          <Link to={`/kid/${child.id}/rewards`} className="text-2xl" aria-label="Rewards">
-            🎁
-          </Link>
-        </div>
+        <SoundToggle />
       </div>
 
       <div className="mb-5 grid grid-cols-3 gap-3">
@@ -113,6 +120,26 @@ export default function ChildHome() {
           emoji="📆"
         />
       </div>
+
+      {/* Prominent Rewards call-to-action */}
+      <Link
+        to={`/kid/${child.id}/rewards`}
+        onClick={() => void sound.play('tap')}
+        className={`mb-5 flex items-center gap-4 rounded-2xl bg-gradient-to-br p-4 text-white shadow-lg ring-4 transition hover:-translate-y-0.5 hover:shadow-xl active:scale-[0.99] ${theme.profile}`}
+      >
+        <span className="animate-float text-4xl" aria-hidden>
+          🎁
+        </span>
+        <div className="flex-1">
+          <div className="text-lg font-black leading-tight">Rewards</div>
+          <div className="text-sm font-bold text-white/90">
+            {balance} {balance === 1 ? 'point' : 'points'} to spend
+          </div>
+        </div>
+        <span className="text-2xl font-black" aria-hidden>
+          ›
+        </span>
+      </Link>
 
       <div className="card mb-6 p-4">
         <div className="mb-2 flex items-center justify-between text-sm font-bold text-slate-600">
@@ -156,6 +183,103 @@ export default function ChildHome() {
           ))}
         </ul>
       )}
+
+      {customizing && (
+        <Customizer
+          familyId={familyId!}
+          child={child}
+          onClose={() => setCustomizing(false)}
+        />
+      )}
+    </div>
+  )
+}
+
+function Customizer({
+  familyId,
+  child,
+  onClose,
+}: {
+  familyId: FamilyId
+  child: Child
+  onClose: () => void
+}) {
+  const [emoji, setEmoji] = useState(child.emoji)
+  const [theme, setTheme] = useState<ThemeKey>(child.theme)
+  const [busy, setBusy] = useState(false)
+  const preview = getTheme(theme)
+
+  const save = async () => {
+    setBusy(true)
+    void sound.play('tap')
+    try {
+      await updateChildAppearance(familyId, child.id, emoji, theme)
+      void sound.play('sparkle')
+      onClose()
+    } catch (err) {
+      console.error(err)
+      void sound.play('error')
+      alert("That didn't save — please try again.")
+      setBusy(false)
+    }
+  }
+
+  return (
+    <div className="fixed inset-0 z-20 flex items-end justify-center bg-slate-900/40 p-0 sm:items-center sm:p-6">
+      <div className="max-h-[92dvh] w-full max-w-lg overflow-y-auto rounded-t-3xl bg-white p-6 shadow-xl sm:rounded-3xl">
+        <div className="mb-4 flex items-center gap-3">
+          <div
+            className={`flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br text-3xl text-white ${preview.profile}`}
+          >
+            {emoji}
+          </div>
+          <h2 className="text-xl font-black text-slate-900">Make it yours, {child.name}!</h2>
+        </div>
+
+        <span className="label">Pick an icon</span>
+        <div className="mb-4 grid grid-cols-8 gap-1.5">
+          {KID_EMOJIS.map((e) => (
+            <button
+              key={e}
+              onClick={() => {
+                void sound.play('tap')
+                setEmoji(e)
+              }}
+              className={`flex aspect-square items-center justify-center rounded-xl text-2xl transition active:scale-90 ${
+                emoji === e ? `bg-gradient-to-br ${preview.profile} ring-2` : 'bg-slate-100 hover:bg-slate-200'
+              }`}
+            >
+              {e}
+            </button>
+          ))}
+        </div>
+
+        <span className="label">Pick a color</span>
+        <div className="mb-6 flex flex-wrap gap-2">
+          {THEME_KEYS.map((key) => (
+            <button
+              key={key}
+              onClick={() => {
+                void sound.play('tap')
+                setTheme(key)
+              }}
+              aria-label={key}
+              className={`h-11 w-11 rounded-full bg-gradient-to-br ${getTheme(key).profile} ${
+                theme === key ? 'ring-4 ring-offset-2' : 'opacity-70'
+              }`}
+            />
+          ))}
+        </div>
+
+        <div className="flex items-center gap-2">
+          <button onClick={save} disabled={busy} className="btn-primary flex-1">
+            {busy ? 'Saving…' : 'Save'}
+          </button>
+          <button onClick={onClose} className="btn-ghost">
+            Cancel
+          </button>
+        </div>
+      </div>
     </div>
   )
 }

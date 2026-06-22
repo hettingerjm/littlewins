@@ -31,6 +31,14 @@ export const THEMES: Record<ThemeKey, Theme> = {
 
 export const THEME_KEYS = Object.keys(THEMES) as ThemeKey[]
 
+/** Fun, kid-friendly emoji choices for the profile customizer. */
+export const KID_EMOJIS = [
+  '🦄', '🌸', '🚀', '🦊', '🐱', '🐶', '🐢', '🐯',
+  '🦁', '🐼', '🦋', '🐝', '🐙', '🦕', '🦖', '🐉',
+  '⚽', '🏀', '🎸', '🎹', '🎨', '⭐', '🌈', '🍕',
+  '🍦', '🦔', '🐨', '🦒', '🐬', '🦩', '👑', '🔥',
+]
+
 export function getTheme(key: ThemeKey): Theme {
   return THEMES[key] ?? THEMES.indigo
 }
