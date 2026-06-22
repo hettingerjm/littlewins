@@ -35,7 +35,7 @@ service cloud.firestore {
     // any Google account can authenticate), THIS allow-list is what actually
     // grants parent powers. Emails are compared lower-cased.
     function parentEmails() {
-      return ['hettingerjm@gmail.com'];
+      return ['hettingerjm@gmail.com', 'hettingerae@gmail.com'];
     }
 
     function isParent() {
