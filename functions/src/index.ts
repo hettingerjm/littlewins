@@ -98,6 +98,34 @@ export const kidLogin = onCall<KidLoginData>(async (request) => {
   return { token }
 })
 
+interface SetPinData {
+  pin?: unknown
+}
+
+/** A parent resets their OWN family's PIN. Scoped by the caller's claim. */
+export const setFamilyPin = onCall<SetPinData>(async (request) => {
+  const auth = request.auth
+  if (!auth) {
+    throw new HttpsError('unauthenticated', 'Sign in first.')
+  }
+  const familyId = auth.token.familyId as string | undefined
+  if (auth.token.role !== 'parent' || !familyId) {
+    throw new HttpsError('permission-denied', 'Only a parent can change the family PIN.')
+  }
+  const pin = String(request.data?.pin ?? '').trim()
+  if (!/^\d{4,10}$/.test(pin)) {
+    throw new HttpsError('invalid-argument', 'PIN must be 4–10 digits.')
+  }
+
+  const { randomBytes } = await import('node:crypto')
+  const salt = randomBytes(16).toString('hex')
+  await db.doc(`families/${familyId}/private/auth`).set(
+    { pinHash: hashPin(pin, salt), pinSalt: salt, failCount: 0, lockUntil: null },
+    { merge: true },
+  )
+  return { ok: true }
+})
+
 export const syncParentClaims = onCall(async (request) => {
   const auth = request.auth
   if (!auth) {

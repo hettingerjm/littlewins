@@ -16,6 +16,7 @@ import ManageTasks from './pages/parent/ManageTasks'
 import ManageRewards from './pages/parent/ManageRewards'
 import ManageClaims from './pages/parent/ManageClaims'
 import ManageChildren from './pages/parent/ManageChildren'
+import ParentSettings from './pages/parent/ParentSettings'
 
 export default function App() {
   return (
@@ -68,6 +69,7 @@ export default function App() {
             <Route path="rewards" element={<ManageRewards />} />
             <Route path="claims" element={<ManageClaims />} />
             <Route path="kids" element={<ManageChildren />} />
+            <Route path="settings" element={<ParentSettings />} />
           </Route>
 
           <Route path="*" element={<Navigate to="/" replace />} />

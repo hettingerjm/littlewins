@@ -9,6 +9,7 @@ const tabs = [
   { to: '/parent/rewards', label: 'Rewards', emoji: '🎁', end: false },
   { to: '/parent/claims', label: 'Claims', emoji: '📨', end: false },
   { to: '/parent/kids', label: 'Kids', emoji: '🧒', end: false },
+  { to: '/parent/settings', label: 'Settings', emoji: '⚙️', end: false },
 ]
 
 export default function ParentLayout() {
