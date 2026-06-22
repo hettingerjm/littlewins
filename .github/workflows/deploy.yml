@@ -50,7 +50,7 @@ jobs:
           FIREBASE_PROJECT: ${{ secrets.VITE_FIREBASE_PROJECT_ID }}
         run: |
           npx firebase-tools@13 deploy \
-            --only hosting,firestore:rules,firestore:indexes \
+            --only hosting,firestore:rules \
             --project "$FIREBASE_PROJECT" \
             --non-interactive
 
