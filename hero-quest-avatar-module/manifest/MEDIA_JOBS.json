@@ -1,0 +1,240 @@
+{
+  "_readme": "Higgsfield job IDs for every generated asset. `gen` = the original generation job; `clean` = the transparent (remove_background) job where one was run. Claude Code can fetch each result by job ID, then save it to the matching `path`. For character layers (bases/stages/outfits/emotes) that still need alpha for compositing, run remove_background on the `gen` id and store the result. Backgrounds stay opaque (no clean).",
+  "model": "nano_banana_pro @ 2k",
+  "masters": {
+    "assets/avatars/male/base_warm.png": {
+      "gen": "e91c872b-ecd9-490e-b8ff-b7ef76e34d97",
+      "role": "master-male",
+      "clean": "8d5c9f32-ade1-4906-a752-ad9ea9d573c7"
+    },
+    "assets/avatars/female/base_warm.png": {
+      "gen": "7352d899-0dad-481f-9009-50864806da68",
+      "role": "master-female",
+      "clean": "3dda9154-cc12-4620-a70b-f3f8300873b9"
+    }
+  },
+  "characters": {
+    "assets/avatars/male/stage1_rookie.png": {
+      "gen": "872df6b1-f361-4e13-84ca-4527009c14dd",
+      "clean": "fed208f5-01d1-4d46-886c-1bca0246a698"
+    },
+    "assets/avatars/male/stage2_apprentice.png": {
+      "gen": "7f6a19a5-f2c6-4d64-b894-91b052204700",
+      "clean": "264ab03f-a25f-4f7f-b706-5667e45aed54"
+    },
+    "assets/avatars/male/stage3_adventurer.png": {
+      "gen": "7f5a8ac9-6c36-4a61-bf92-0cd6618746f8",
+      "clean": "34645c07-9da6-45f1-a019-3139b1e14777"
+    },
+    "assets/avatars/male/stage4_champion.png": {
+      "gen": "7f609fbd-8cf5-4516-b0eb-18410d96896e",
+      "clean": "bb391f96-297b-46ba-9c54-79957988c940"
+    },
+    "assets/avatars/male/stage5_legend.png": {
+      "gen": "adcb6708-c6cc-463e-baef-173c0fc5bb00",
+      "clean": "e87c1e7d-0f9e-4f95-bc06-2d95a438f54d"
+    },
+    "assets/avatars/male/stage6_ascended.png": {
+      "gen": "a5571d45-9ccb-45c1-b2cc-866f5249e169",
+      "clean": "6cc01538-af2e-42ab-8045-320a6636825b"
+    },
+    "assets/avatars/male/base_fair.png": {
+      "gen": "ab37123f-2c81-408e-93a9-c99f78552eb3",
+      "clean": "a7ccb875-d2b0-4a4d-a759-05f8a7383ff8"
+    },
+    "assets/avatars/male/base_tan.png": {
+      "gen": "b2cb8266-8c1f-4cb7-8d91-125bdc7ec157",
+      "clean": "da97a9fd-2bae-4a46-b548-06caa2eadbcf"
+    },
+    "assets/avatars/male/base_deep.png": {
+      "gen": "8117051e-cf7d-4c36-8433-997168d03fe8",
+      "clean": "a469bb6e-ca65-4812-af1f-f12a39a1f37e"
+    },
+    "assets/outfits/male/outfit_ranger.png": {
+      "gen": "89be288c-8b91-4066-8bb7-a0c73dc0b3f6",
+      "clean": "8c624403-40cd-403e-9c83-2e0fd0330580"
+    },
+    "assets/outfits/male/outfit_knight.png": {
+      "gen": "278d058d-48d2-467c-87cc-550710e27f24",
+      "clean": "243361c7-7a23-478b-ab89-837849c6e44e"
+    },
+    "assets/outfits/male/outfit_mage.png": {
+      "gen": "4b9fb463-bd6a-49a9-b2ba-4d05e3cb5644",
+      "clean": "509b75e3-5456-4a2d-b162-288678581e7b"
+    },
+    "assets/outfits/male/outfit_dragon.png": {
+      "gen": "70c6006c-7274-4418-b737-03138027819a",
+      "clean": "cf5418ac-54d5-4c7f-bc00-cbcee434acfc"
+    },
+    "assets/outfits/male/outfit_celestial.png": {
+      "gen": "8536b5a1-6936-4d89-9276-c66a68ecc5a7",
+      "clean": "f62d5ade-d934-4469-8cb7-16ff87e37ae7"
+    },
+    "assets/avatars/male/emote_cheer.png": {
+      "gen": "56959b59-a3b8-4d00-adae-df2564247e60",
+      "clean": "2b58e428-059a-425b-897a-2ad8ef75dbe2"
+    },
+    "assets/avatars/male/emote_flex.png": {
+      "gen": "11ded3a9-a5c3-4b60-a663-eb1aa62e3245",
+      "clean": "3e88e8c1-31f2-449f-9581-9ef303cd1bb0"
+    },
+    "assets/avatars/female/stage1_rookie.png": {
+      "gen": "e24fe93f-eac4-49d8-82d0-20fafc46de1c",
+      "clean": "e077fc89-d7c7-4347-afc8-960555621cee"
+    },
+    "assets/avatars/female/stage2_apprentice.png": {
+      "gen": "ff8d7d58-64d6-4247-8ed1-81d3321efdbf",
+      "clean": "b6291ecf-77e7-4301-9e51-e7f37750a999"
+    },
+    "assets/avatars/female/stage3_adventurer.png": {
+      "gen": "2115be9a-40dc-4d70-bf8d-0167831c0995",
+      "clean": "3c6ee4ae-c2d1-44ed-9dbe-564a825c0095"
+    },
+    "assets/avatars/female/stage4_champion.png": {
+      "gen": "07eda270-4075-4a69-9e28-cb3de32dff6a",
+      "clean": "845f7670-7f0f-4fda-ba28-7289949fbb74"
+    },
+    "assets/avatars/female/stage5_legend.png": {
+      "gen": "36a6e53f-3deb-4ec6-9a46-c2d5fc2d74cd",
+      "clean": "b94fa3a7-074a-473d-9eea-d7b115aea6a9"
+    },
+    "assets/avatars/female/stage6_ascended.png": {
+      "gen": "49bc10af-01ae-4bf9-a8ed-2347d69b3f64",
+      "clean": "7e68e606-34dc-437e-b7d3-817114584894"
+    },
+    "assets/avatars/female/base_fair.png": {
+      "gen": "d52f7695-61f1-4133-a600-bc03c2573d94",
+      "clean": "857b1173-c7f6-49c5-9039-583402d87bee"
+    },
+    "assets/avatars/female/base_tan.png": {
+      "gen": "379a5845-cf77-4cc3-a10d-f8e6fb48defc",
+      "clean": "3d4d3758-ec2b-4931-a368-1f1767776b14"
+    },
+    "assets/avatars/female/base_deep.png": {
+      "gen": "57f4a87f-36e8-462d-b7cd-a1fba18fd3ce",
+      "clean": "c0269d87-7399-4160-b872-0c86dbd7519e"
+    },
+    "assets/outfits/female/outfit_ranger.png": {
+      "gen": "1d55477c-219f-46ed-9c64-e24b44c1075b",
+      "clean": "d88bcf13-2104-4d04-ae14-53a4999dc93e"
+    },
+    "assets/outfits/female/outfit_knight.png": {
+      "gen": "3f9e2c0b-ad92-4cc8-8836-ef7e670514d2",
+      "clean": "232aea99-8943-4197-9d4b-34dcdfc58419"
+    },
+    "assets/outfits/female/outfit_mage.png": {
+      "gen": "a165fae0-a15c-4f34-b7f8-bee697c5929e",
+      "clean": "72ab8ed7-25bd-4354-85c5-f13aa587acee"
+    },
+    "assets/outfits/female/outfit_dragon.png": {
+      "gen": "e156ee1d-9f07-4581-8ecb-ce23579b556d",
+      "clean": "4adf085c-df51-4de4-8872-40fa9659beb0"
+    },
+    "assets/outfits/female/outfit_celestial.png": {
+      "gen": "90ca8d27-609c-400e-90ca-85294c89a875",
+      "clean": "b9d8daba-97fd-4a7c-895e-635a7efa793f"
+    },
+    "assets/avatars/female/emote_cheer.png": {
+      "gen": "c6872ea8-5bbc-47e9-b2d9-ec1865b90e05",
+      "clean": "ed634e30-ee25-43ad-b8a8-14f93218db3b"
+    },
+    "assets/avatars/female/emote_flex.png": {
+      "gen": "a67fb0fa-2cb6-4c05-b8d9-2dd86a390dde",
+      "clean": "719534b8-aaa6-457d-a443-15dcfda2afc2"
+    }
+  },
+  "overlays": {
+    "assets/headgear/head_cap.png": {
+      "gen": "07e6f9c6-8274-4f2f-bbcf-fa87fc6fc84a",
+      "clean": "e2c6de84-eaec-4b63-ada6-68eb63670595"
+    },
+    "assets/headgear/head_horns.png": {
+      "gen": "fd458e5b-8c00-437d-866f-993476988bbd",
+      "clean": "fb5d8d4e-545a-4249-aca1-78cac471bdc8"
+    },
+    "assets/headgear/head_crown.png": {
+      "gen": "4a3cb20c-6c56-454f-b5c4-34a5ec4d383d",
+      "clean": "bd78c354-6b40-43c9-a73d-590223238ed4"
+    },
+    "assets/headgear/head_halo.png": {
+      "gen": "e60eff47-add5-41e6-aed2-4f8c083fa5af",
+      "clean": "2ac69c5f-a4ad-4240-8058-c3af59d75254"
+    },
+    "assets/weapon/wpn_bow.png": {
+      "gen": "d8aa6d66-a5c8-48e3-a250-76cbe709e6c0",
+      "clean": "beb5ea3f-ea3a-4057-9389-ca2ec64c7982"
+    },
+    "assets/weapon/wpn_staff.png": {
+      "gen": "c36ac595-0403-42a4-85ba-dec10eff34a0",
+      "clean": "5f23002c-c45d-4969-8b9b-848725f50d5e"
+    },
+    "assets/weapon/wpn_flameblade.png": {
+      "gen": "46921c53-f866-401d-908e-2d4cc863262e",
+      "clean": "b230b851-833e-4d85-8709-976c1a15f69b"
+    },
+    "assets/weapon/wpn_starsword.png": {
+      "gen": "ba30e3f4-0ea0-4abd-a777-84424d902a82",
+      "clean": "fe6641c6-82a5-48f2-85e5-0697fa58094b"
+    },
+    "assets/pet/pet_fox.png": {
+      "gen": "6b9797f6-8289-4771-901c-c78dc59b16db",
+      "clean": "ff7f75e7-c2f3-4498-9b26-a979023758ef"
+    },
+    "assets/pet/pet_owl.png": {
+      "gen": "fc9fc165-aefa-466d-93d9-19a52debcb2b",
+      "clean": "a6f056d4-8042-4897-b786-b1be9d2b0e08"
+    },
+    "assets/pet/pet_dragon.png": {
+      "gen": "27d9a5b3-4554-42d2-b390-6f63806d93d4",
+      "clean": "1a2b4e9e-2046-412e-87b2-52eb0ca26fc6"
+    },
+    "assets/pet/pet_phoenix.png": {
+      "gen": "9a97693b-e515-4398-bbbb-6ee0c25fb97f",
+      "clean": "497af743-dea7-4f33-8801-991a080485fe"
+    },
+    "assets/aura/aura_sparkle.png": {
+      "gen": "c4be01f6-e1d7-457f-a030-bc9950154883",
+      "clean": "dd75dfd6-edf6-4952-8a09-69185ff6fc64"
+    },
+    "assets/aura/aura_flame.png": {
+      "gen": "f6a2179f-4725-4661-8525-a6671fd38599",
+      "clean": "80ee4666-36fe-43b9-85a3-1819376faee1"
+    },
+    "assets/aura/aura_cosmic.png": {
+      "gen": "08ae8fac-e922-4501-ae5d-e93577ad3cad",
+      "clean": "2d860d5e-9a62-4c4e-9013-c5daf19f1354"
+    },
+    "assets/frame/frame_bronze.png": {
+      "gen": "8d044e25-4f0b-45a6-bdec-fded90d4a257",
+      "clean": "09eaf4f0-c440-48ee-916e-0ae1b495e176"
+    },
+    "assets/frame/frame_silver.png": {
+      "gen": "c699dd83-9238-40e1-9fd2-08e7b92273a5",
+      "clean": "c572e4d6-5d92-410b-ab32-b76a4c836c12"
+    },
+    "assets/frame/frame_gold.png": {
+      "gen": "95c0f452-b294-44ef-9d0f-d9e531d50ec5",
+      "clean": "b06b0bff-0eef-469c-876a-6598602ffe1e"
+    },
+    "assets/background/bg_meadow.png": {
+      "gen": "d6c0423f-af74-4561-8852-6598de994643",
+      "opaque": true
+    },
+    "assets/background/bg_castle.png": {
+      "gen": "5dfbb49b-2911-4a90-9f54-c9e1930f1105",
+      "opaque": true
+    },
+    "assets/background/bg_galaxy.png": {
+      "gen": "1165f2ed-4816-49ae-be17-b79eef440953",
+      "opaque": true
+    }
+  },
+  "reference_sheets": {
+    "_note": "Approval/style references, not shipped game assets.",
+    "evolution_male": "d6c6395d-c849-4bb2-8dfe-9b7b4e26c050",
+    "shop_items": "8bd3591d-cf8f-45ba-a177-cbc704f89c38",
+    "evolution_female": "406ee98e-7cb8-4751-a2a0-fe89d9b5f3b2",
+    "outfits_showcase": "0133a14a-10df-4f5e-a035-e8c2b04d5bc3",
+    "base_lineup": "6187b889-6a3f-4cbb-aba8-7169c5b258e1"
+  }
+}

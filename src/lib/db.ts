@@ -8,8 +8,11 @@ import {
   updateDoc,
   writeBatch,
 } from 'firebase/firestore'
+import { getDoc } from 'firebase/firestore'
 import { db } from '../firebase'
 import type { ChildId, ClaimStatus, FamilyId, Reward, Task, ThemeKey } from '../types'
+import { DEFAULT_AVATAR, type AvatarDoc } from '../avatar/economy'
+import type { BodyTypeId, SkinToneId, SlotId } from '../avatar/types'
 
 // ---- family-scoped collection references ------------------------------------
 export const childrenCol = (fid: FamilyId) => collection(db, 'families', fid, 'children')
@@ -155,6 +158,38 @@ export async function updateReward(fid: FamilyId, id: string, input: RewardInput
 export async function deleteReward(fid: FamilyId, id: string): Promise<void> {
   await deleteDoc(doc(rewardsCol(fid), id))
 }
+
+// ---- avatars ----------------------------------------------------------------
+export const avatarsCol = (fid: FamilyId) => collection(db, 'families', fid, 'avatars')
+
+/** Create the child's avatar doc with defaults if it doesn't exist yet. */
+export async function ensureAvatar(fid: FamilyId, childId: ChildId): Promise<void> {
+  const ref = doc(avatarsCol(fid), childId)
+  const snap = await getDoc(ref)
+  if (!snap.exists()) {
+    await setDoc(ref, { ...DEFAULT_AVATAR })
+  }
+}
+
+/** Cosmetic appearance (body type + skin tone). Child-writable per rules. */
+export async function setAvatarAppearance(
+  fid: FamilyId,
+  childId: ChildId,
+  appearance: { bodyType: BodyTypeId; skinTone: SkinToneId },
+): Promise<void> {
+  await updateDoc(doc(avatarsCol(fid), childId), { ...appearance })
+}
+
+/** Write the full equipped map (slot -> itemId). Child-writable per rules. */
+export async function setEquipped(
+  fid: FamilyId,
+  childId: ChildId,
+  equipped: Partial<Record<SlotId, string>>,
+): Promise<void> {
+  await updateDoc(doc(avatarsCol(fid), childId), { equipped })
+}
+
+export type { AvatarDoc }
 
 // ---- reward claims ----------------------------------------------------------
 

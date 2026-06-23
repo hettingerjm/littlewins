@@ -7,6 +7,7 @@ import FamilyPin from './pages/FamilyPin'
 import ProfileSelect from './pages/ProfileSelect'
 import ChildHome from './pages/ChildHome'
 import RewardsPage from './pages/RewardsPage'
+import HeroPage from './pages/HeroPage'
 
 import ParentLogin from './pages/parent/ParentLogin'
 import ParentLayout from './pages/parent/ParentLayout'
@@ -49,6 +50,14 @@ export default function App() {
             element={
               <RequireAuth>
                 <RewardsPage />
+              </RequireAuth>
+            }
+          />
+          <Route
+            path="/kid/:childId/hero"
+            element={
+              <RequireAuth>
+                <HeroPage />
               </RequireAuth>
             }
           />

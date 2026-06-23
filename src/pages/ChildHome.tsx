@@ -7,6 +7,9 @@ import { todayKey, formatLong } from '../lib/dates'
 import { tasksForChildOn, scheduleLabel } from '../lib/schedule'
 import { earnedOn, totalEarned, availableBalance } from '../lib/points'
 import { computeStreak } from '../lib/streak'
+import { useAvatar } from '../hooks/avatar'
+import { deriveEconomy } from '../avatar/economy'
+import { AvatarView } from '../components/AvatarView'
 import { getTheme, KID_EMOJIS, THEME_KEYS } from '../config'
 import { sound } from '../lib/sound'
 import { confetti } from '../lib/confetti'
@@ -23,6 +26,7 @@ export default function ChildHome() {
   const { tasks, loading: tasksLoading } = useTasks(familyId)
   const { completions, loading: compLoading } = useChildCompletions(familyId, childId)
   const { claims } = useChildClaims(familyId, childId)
+  const { avatar } = useAvatar(familyId, childId)
   const [customizing, setCustomizing] = useState(false)
 
   const child = children.find((c) => c.id === childId)
@@ -76,6 +80,7 @@ export default function ChildHome() {
   const totalPoints = totalEarned(completions, child.id)
   const streak = computeStreak(tasks, completions, child.id, today)
   const balance = availableBalance(completions, claims, child.id)
+  const heroEcon = deriveEconomy(completions)
   const allDone = total > 0 && completed === total
   const progressPct = total === 0 ? 0 : Math.round((completed / total) * 100)
 
@@ -120,6 +125,41 @@ export default function ChildHome() {
           emoji="📆"
         />
       </div>
+
+      {/* Hero HQ card */}
+      {avatar && (
+        <Link
+          to={`/kid/${child.id}/hero`}
+          onClick={() => void sound.play('tap')}
+          className="card mb-4 flex items-center gap-4 p-3 transition hover:-translate-y-0.5 hover:shadow-md active:scale-[0.99]"
+        >
+          <AvatarView
+            bodyType={avatar.bodyType}
+            skinTone={avatar.skinTone}
+            level={heroEcon.level}
+            equipped={avatar.equipped}
+            size={72}
+          />
+          <div className="min-w-0 flex-1">
+            <div className="flex items-center gap-2">
+              <span className="font-black text-slate-800">Hero HQ</span>
+              <span className="text-xs font-bold uppercase tracking-wide text-indigo-500">
+                {heroEcon.stageName}
+              </span>
+            </div>
+            <div className="text-sm font-bold text-slate-500">
+              Level {heroEcon.level} · 🪙 {Math.max(0, heroEcon.earnedCoins - avatar.coinsSpent)}
+            </div>
+            <div className="mt-1.5 h-2 overflow-hidden rounded-full bg-slate-100">
+              <div
+                className="h-full rounded-full bg-gradient-to-r from-indigo-400 to-indigo-600"
+                style={{ width: `${Math.round(heroEcon.fraction * 100)}%` }}
+              />
+            </div>
+          </div>
+          <span className="text-2xl font-black text-slate-300" aria-hidden>›</span>
+        </Link>
+      )}
 
       {/* Prominent Rewards call-to-action */}
       <Link

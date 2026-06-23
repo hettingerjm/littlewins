@@ -1,0 +1,829 @@
+{
+  "meta": {
+    "version": "2.0.0",
+    "title": "Hero Quest Avatar Module",
+    "style": "Stylized cel-shaded 3D (Fortnite / Wind Waker lane)",
+    "currencies": {
+      "xp": "XP",
+      "coins": "Coins"
+    },
+    "levelCap": 50,
+    "xpCurve": "round(80 * level^1.45)",
+    "notes": "Cosmetic-only economy. No real money. Coins are earned by completing real chores."
+  },
+  "defaults": {
+    "startingCoins": 100,
+    "startingLevel": 1,
+    "startingBodyType": "male",
+    "startingSkinTone": "warm"
+  },
+  "bodyTypes": [
+    {
+      "id": "male",
+      "name": "Hero",
+      "desc": "a boy hero with short tidy hair"
+    },
+    {
+      "id": "female",
+      "name": "Heroine",
+      "desc": "a girl hero with a ponytail"
+    }
+  ],
+  "skinTones": [
+    {
+      "id": "fair",
+      "name": "Fair",
+      "desc": "fair skin tone"
+    },
+    {
+      "id": "warm",
+      "name": "Warm",
+      "desc": "warm medium skin tone"
+    },
+    {
+      "id": "tan",
+      "name": "Tan",
+      "desc": "tan/olive skin tone"
+    },
+    {
+      "id": "deep",
+      "name": "Deep",
+      "desc": "deep skin tone"
+    }
+  ],
+  "economy": {
+    "choreRewards": {
+      "small": {
+        "xp": 10,
+        "coins": 5
+      },
+      "medium": {
+        "xp": 25,
+        "coins": 12
+      },
+      "large": {
+        "xp": 50,
+        "coins": 25
+      },
+      "boss": {
+        "xp": 100,
+        "coins": 60
+      }
+    },
+    "streak": {
+      "multiplierPerDay": 0.05,
+      "maxMultiplier": 0.5,
+      "shieldsPerWeek": 1
+    }
+  },
+  "levels": [
+    {
+      "level": 1,
+      "xpToNext": 80,
+      "totalXpAtLevel": 0
+    },
+    {
+      "level": 2,
+      "xpToNext": 219,
+      "totalXpAtLevel": 80
+    },
+    {
+      "level": 3,
+      "xpToNext": 393,
+      "totalXpAtLevel": 299
+    },
+    {
+      "level": 4,
+      "xpToNext": 597,
+      "totalXpAtLevel": 692
+    },
+    {
+      "level": 5,
+      "xpToNext": 825,
+      "totalXpAtLevel": 1289
+    },
+    {
+      "level": 6,
+      "xpToNext": 1075,
+      "totalXpAtLevel": 2114
+    },
+    {
+      "level": 7,
+      "xpToNext": 1344,
+      "totalXpAtLevel": 3189
+    },
+    {
+      "level": 8,
+      "xpToNext": 1631,
+      "totalXpAtLevel": 4533
+    },
+    {
+      "level": 9,
+      "xpToNext": 1935,
+      "totalXpAtLevel": 6164
+    },
+    {
+      "level": 10,
+      "xpToNext": 2255,
+      "totalXpAtLevel": 8099
+    },
+    {
+      "level": 11,
+      "xpToNext": 2589,
+      "totalXpAtLevel": 10354
+    },
+    {
+      "level": 12,
+      "xpToNext": 2937,
+      "totalXpAtLevel": 12943
+    },
+    {
+      "level": 13,
+      "xpToNext": 3298,
+      "totalXpAtLevel": 15880
+    },
+    {
+      "level": 14,
+      "xpToNext": 3673,
+      "totalXpAtLevel": 19178
+    },
+    {
+      "level": 15,
+      "xpToNext": 4059,
+      "totalXpAtLevel": 22851
+    },
+    {
+      "level": 16,
+      "xpToNext": 4457,
+      "totalXpAtLevel": 26910
+    },
+    {
+      "level": 17,
+      "xpToNext": 4867,
+      "totalXpAtLevel": 31367
+    },
+    {
+      "level": 18,
+      "xpToNext": 5287,
+      "totalXpAtLevel": 36234
+    },
+    {
+      "level": 19,
+      "xpToNext": 5719,
+      "totalXpAtLevel": 41521
+    },
+    {
+      "level": 20,
+      "xpToNext": 6160,
+      "totalXpAtLevel": 47240
+    },
+    {
+      "level": 21,
+      "xpToNext": 6612,
+      "totalXpAtLevel": 53400
+    },
+    {
+      "level": 22,
+      "xpToNext": 7073,
+      "totalXpAtLevel": 60012
+    },
+    {
+      "level": 23,
+      "xpToNext": 7544,
+      "totalXpAtLevel": 67085
+    },
+    {
+      "level": 24,
+      "xpToNext": 8024,
+      "totalXpAtLevel": 74629
+    },
+    {
+      "level": 25,
+      "xpToNext": 8513,
+      "totalXpAtLevel": 82653
+    },
+    {
+      "level": 26,
+      "xpToNext": 9012,
+      "totalXpAtLevel": 91166
+    },
+    {
+      "level": 27,
+      "xpToNext": 9518,
+      "totalXpAtLevel": 100178
+    },
+    {
+      "level": 28,
+      "xpToNext": 10034,
+      "totalXpAtLevel": 109696
+    },
+    {
+      "level": 29,
+      "xpToNext": 10558,
+      "totalXpAtLevel": 119730
+    },
+    {
+      "level": 30,
+      "xpToNext": 11090,
+      "totalXpAtLevel": 130288
+    },
+    {
+      "level": 31,
+      "xpToNext": 11630,
+      "totalXpAtLevel": 141378
+    },
+    {
+      "level": 32,
+      "xpToNext": 12177,
+      "totalXpAtLevel": 153008
+    },
+    {
+      "level": 33,
+      "xpToNext": 12733,
+      "totalXpAtLevel": 165185
+    },
+    {
+      "level": 34,
+      "xpToNext": 13296,
+      "totalXpAtLevel": 177918
+    },
+    {
+      "level": 35,
+      "xpToNext": 13867,
+      "totalXpAtLevel": 191214
+    },
+    {
+      "level": 36,
+      "xpToNext": 14445,
+      "totalXpAtLevel": 205081
+    },
+    {
+      "level": 37,
+      "xpToNext": 15031,
+      "totalXpAtLevel": 219526
+    },
+    {
+      "level": 38,
+      "xpToNext": 15623,
+      "totalXpAtLevel": 234557
+    },
+    {
+      "level": 39,
+      "xpToNext": 16223,
+      "totalXpAtLevel": 250180
+    },
+    {
+      "level": 40,
+      "xpToNext": 16830,
+      "totalXpAtLevel": 266403
+    },
+    {
+      "level": 41,
+      "xpToNext": 17443,
+      "totalXpAtLevel": 283233
+    },
+    {
+      "level": 42,
+      "xpToNext": 18063,
+      "totalXpAtLevel": 300676
+    },
+    {
+      "level": 43,
+      "xpToNext": 18690,
+      "totalXpAtLevel": 318739
+    },
+    {
+      "level": 44,
+      "xpToNext": 19324,
+      "totalXpAtLevel": 337429
+    },
+    {
+      "level": 45,
+      "xpToNext": 19964,
+      "totalXpAtLevel": 356753
+    },
+    {
+      "level": 46,
+      "xpToNext": 20611,
+      "totalXpAtLevel": 376717
+    },
+    {
+      "level": 47,
+      "xpToNext": 21263,
+      "totalXpAtLevel": 397328
+    },
+    {
+      "level": 48,
+      "xpToNext": 21922,
+      "totalXpAtLevel": 418591
+    },
+    {
+      "level": 49,
+      "xpToNext": 22588,
+      "totalXpAtLevel": 440513
+    },
+    {
+      "level": 50,
+      "xpToNext": 0,
+      "totalXpAtLevel": 463101
+    }
+  ],
+  "stages": [
+    {
+      "id": "stage1_rookie",
+      "name": "Rookie",
+      "levelMin": 1,
+      "levelMax": 4,
+      "gear": "plain tan tunic, tiny wooden stick, small and eager",
+      "blurb": "Just starting the journey."
+    },
+    {
+      "id": "stage2_apprentice",
+      "name": "Apprentice",
+      "levelMin": 5,
+      "levelMax": 9,
+      "gear": "leather vest, short cloth cape, wooden shortsword",
+      "blurb": "Earned your first gear."
+    },
+    {
+      "id": "stage3_adventurer",
+      "name": "Adventurer",
+      "levelMin": 10,
+      "levelMax": 19,
+      "gear": "light steel chest armor, blue cloak, glowing toy-like sword, confident",
+      "blurb": "A real hero now."
+    },
+    {
+      "id": "stage4_champion",
+      "name": "Champion",
+      "levelMin": 20,
+      "levelMax": 34,
+      "gear": "ornate golden armor, flowing red cape, bright magic sword, heroic stance",
+      "blurb": "Undeniable power."
+    },
+    {
+      "id": "stage5_legend",
+      "name": "Legend",
+      "levelMin": 35,
+      "levelMax": 49,
+      "gear": "glowing radiant armor, energy aura, small angelic wings, magic blade, majestic",
+      "blurb": "Glowing armor and wings."
+    },
+    {
+      "id": "stage6_ascended",
+      "name": "Ascended",
+      "levelMin": 50,
+      "levelMax": 50,
+      "gear": "maxed-out radiant legendary form, brilliant halo of light, prismatic armor",
+      "blurb": "Maxed out."
+    }
+  ],
+  "rarities": [
+    {
+      "id": "common",
+      "name": "Common",
+      "color": "#9CA3AF",
+      "glow": false
+    },
+    {
+      "id": "uncommon",
+      "name": "Uncommon",
+      "color": "#22C55E",
+      "glow": false
+    },
+    {
+      "id": "rare",
+      "name": "Rare",
+      "color": "#3B82F6",
+      "glow": false
+    },
+    {
+      "id": "epic",
+      "name": "Epic",
+      "color": "#A855F7",
+      "glow": true
+    },
+    {
+      "id": "legendary",
+      "name": "Legendary",
+      "color": "#F59E0B",
+      "glow": true
+    },
+    {
+      "id": "mythic",
+      "name": "Mythic",
+      "color": "#EF4444",
+      "glow": true
+    }
+  ],
+  "render": {
+    "canvas": {
+      "width": 1024,
+      "height": 1024
+    },
+    "assetPaths": {
+      "stage": "assets/avatars/{bodyType}/{id}.png",
+      "base": "assets/avatars/{bodyType}/base_{skinTone}.png",
+      "outfit": "assets/outfits/{bodyType}/{id}.png",
+      "overlay": "assets/{category}/{id}.png",
+      "icon": "assets/icons/{id}.png"
+    },
+    "slots": [
+      {
+        "id": "base",
+        "mode": "fullSkin",
+        "z": 0,
+        "anchor": "center",
+        "bodyVariant": true
+      },
+      {
+        "id": "outfit",
+        "mode": "fullSkin",
+        "z": 1,
+        "anchor": "center",
+        "bodyVariant": true
+      },
+      {
+        "id": "background",
+        "mode": "overlay",
+        "z": -1,
+        "anchor": "fullscreen",
+        "bodyVariant": false
+      },
+      {
+        "id": "aura",
+        "mode": "overlay",
+        "z": 2,
+        "anchor": "center",
+        "bodyVariant": false
+      },
+      {
+        "id": "weapon",
+        "mode": "overlay",
+        "z": 3,
+        "anchor": "hand",
+        "bodyVariant": false
+      },
+      {
+        "id": "headgear",
+        "mode": "overlay",
+        "z": 4,
+        "anchor": "head",
+        "bodyVariant": false
+      },
+      {
+        "id": "pet",
+        "mode": "overlay",
+        "z": 5,
+        "anchor": "side",
+        "bodyVariant": false
+      },
+      {
+        "id": "frame",
+        "mode": "overlay",
+        "z": 6,
+        "anchor": "card",
+        "bodyVariant": false
+      },
+      {
+        "id": "emote",
+        "mode": "overlay",
+        "z": 7,
+        "anchor": "center",
+        "bodyVariant": false
+      }
+    ],
+    "anchors": {
+      "center": {
+        "x": 512,
+        "y": 512
+      },
+      "head": {
+        "x": 512,
+        "y": 270
+      },
+      "hand": {
+        "x": 700,
+        "y": 620
+      },
+      "side": {
+        "x": 820,
+        "y": 760
+      },
+      "fullscreen": {
+        "x": 512,
+        "y": 512
+      },
+      "card": {
+        "x": 512,
+        "y": 512
+      }
+    }
+  },
+  "shop": [
+    {
+      "id": "outfit_ranger",
+      "name": "Forest Ranger",
+      "category": "outfit",
+      "rarity": "uncommon",
+      "price": 250,
+      "levelReq": 5,
+      "bodyVariant": true,
+      "desc": "Forest Ranger: green hooded cloak, leather bracers"
+    },
+    {
+      "id": "outfit_knight",
+      "name": "Royal Knight",
+      "category": "outfit",
+      "rarity": "rare",
+      "price": 600,
+      "levelReq": 10,
+      "bodyVariant": true,
+      "desc": "Royal Knight: polished blue-and-silver plate armor, tabard"
+    },
+    {
+      "id": "outfit_mage",
+      "name": "Star Mage",
+      "category": "outfit",
+      "rarity": "epic",
+      "price": 1800,
+      "levelReq": 15,
+      "bodyVariant": true,
+      "setId": "cosmic",
+      "desc": "Star Mage: deep purple robe with star patterns"
+    },
+    {
+      "id": "outfit_dragon",
+      "name": "Dragonlord",
+      "category": "outfit",
+      "rarity": "legendary",
+      "price": 6500,
+      "levelReq": 25,
+      "bodyVariant": true,
+      "desc": "Dragonlord: dark scaled armor with glowing red accents, small friendly shoulder spikes"
+    },
+    {
+      "id": "outfit_celestial",
+      "name": "Celestial Hero",
+      "category": "outfit",
+      "rarity": "mythic",
+      "price": 16000,
+      "levelReq": 40,
+      "bodyVariant": true,
+      "setId": "cosmic",
+      "desc": "Celestial Hero: white-and-gold radiant armor, soft light wings"
+    },
+    {
+      "id": "head_cap",
+      "name": "Explorer Cap",
+      "category": "headgear",
+      "rarity": "common",
+      "price": 80,
+      "levelReq": 1,
+      "bodyVariant": false,
+      "desc": "green explorer cap"
+    },
+    {
+      "id": "head_horns",
+      "name": "Battle Horns",
+      "category": "headgear",
+      "rarity": "rare",
+      "price": 450,
+      "levelReq": 8,
+      "bodyVariant": false,
+      "desc": "stylized cartoon battle-horns headband"
+    },
+    {
+      "id": "head_crown",
+      "name": "Golden Crown",
+      "category": "headgear",
+      "rarity": "epic",
+      "price": 2200,
+      "levelReq": 18,
+      "bodyVariant": false,
+      "desc": "golden jeweled crown"
+    },
+    {
+      "id": "head_halo",
+      "name": "Star Halo",
+      "category": "headgear",
+      "rarity": "legendary",
+      "price": 5500,
+      "levelReq": 30,
+      "bodyVariant": false,
+      "setId": "cosmic",
+      "desc": "glowing golden star halo ring"
+    },
+    {
+      "id": "wpn_bow",
+      "name": "Oak Bow",
+      "category": "weapon",
+      "rarity": "uncommon",
+      "price": 200,
+      "levelReq": 4,
+      "bodyVariant": false,
+      "desc": "carved oak bow"
+    },
+    {
+      "id": "wpn_staff",
+      "name": "Crystal Staff",
+      "category": "weapon",
+      "rarity": "rare",
+      "price": 700,
+      "levelReq": 12,
+      "bodyVariant": false,
+      "desc": "crystal-topped wizard staff, glowing"
+    },
+    {
+      "id": "wpn_flameblade",
+      "name": "Flame Blade",
+      "category": "weapon",
+      "rarity": "epic",
+      "price": 2400,
+      "levelReq": 20,
+      "bodyVariant": false,
+      "desc": "cartoon sword wreathed in friendly orange flames"
+    },
+    {
+      "id": "wpn_starsword",
+      "name": "Starcaller",
+      "category": "weapon",
+      "rarity": "legendary",
+      "price": 7000,
+      "levelReq": 32,
+      "bodyVariant": false,
+      "setId": "cosmic",
+      "desc": "glowing blue star-energy sword"
+    },
+    {
+      "id": "pet_fox",
+      "name": "Ember Fox",
+      "category": "pet",
+      "rarity": "rare",
+      "price": 800,
+      "levelReq": 7,
+      "bodyVariant": false,
+      "desc": "cute ember fox with glowing tail, sitting"
+    },
+    {
+      "id": "pet_owl",
+      "name": "Snowy Owl",
+      "category": "pet",
+      "rarity": "rare",
+      "price": 800,
+      "levelReq": 7,
+      "bodyVariant": false,
+      "desc": "snowy owl with big friendly eyes"
+    },
+    {
+      "id": "pet_dragon",
+      "name": "Baby Dragon",
+      "category": "pet",
+      "rarity": "epic",
+      "price": 2600,
+      "levelReq": 16,
+      "bodyVariant": false,
+      "desc": "chubby friendly baby dragon"
+    },
+    {
+      "id": "pet_phoenix",
+      "name": "Phoenix Chick",
+      "category": "pet",
+      "rarity": "legendary",
+      "price": 8000,
+      "levelReq": 28,
+      "bodyVariant": false,
+      "desc": "glowing phoenix chick with soft fire feathers"
+    },
+    {
+      "id": "aura_sparkle",
+      "name": "Sparkle Aura",
+      "category": "aura",
+      "rarity": "uncommon",
+      "price": 300,
+      "levelReq": 6,
+      "bodyVariant": false,
+      "desc": "ring of gold sparkles, no character"
+    },
+    {
+      "id": "aura_flame",
+      "name": "Flame Aura",
+      "category": "aura",
+      "rarity": "epic",
+      "price": 2000,
+      "levelReq": 14,
+      "bodyVariant": false,
+      "desc": "friendly orange flame aura ring, no character"
+    },
+    {
+      "id": "aura_cosmic",
+      "name": "Cosmic Aura",
+      "category": "aura",
+      "rarity": "mythic",
+      "price": 15000,
+      "levelReq": 38,
+      "bodyVariant": false,
+      "setId": "cosmic",
+      "desc": "swirling purple-and-blue cosmic energy ring with stars, no character"
+    },
+    {
+      "id": "bg_meadow",
+      "name": "Sunny Meadow",
+      "category": "background",
+      "rarity": "common",
+      "price": 120,
+      "levelReq": 1,
+      "bodyVariant": false,
+      "desc": "sunny green meadow with flowers and blue sky, scene only no character"
+    },
+    {
+      "id": "bg_castle",
+      "name": "Castle Hall",
+      "category": "background",
+      "rarity": "rare",
+      "price": 500,
+      "levelReq": 9,
+      "bodyVariant": false,
+      "desc": "warm stone castle great hall with banners, scene only no character"
+    },
+    {
+      "id": "bg_galaxy",
+      "name": "Galaxy",
+      "category": "background",
+      "rarity": "epic",
+      "price": 2200,
+      "levelReq": 17,
+      "bodyVariant": false,
+      "setId": "cosmic",
+      "desc": "vibrant galaxy with nebula and stars, scene only no character"
+    },
+    {
+      "id": "frame_bronze",
+      "name": "Bronze Frame",
+      "category": "frame",
+      "rarity": "common",
+      "price": 100,
+      "levelReq": 1,
+      "bodyVariant": false,
+      "desc": "square UI card frame, bronze rounded border, empty transparent center"
+    },
+    {
+      "id": "frame_silver",
+      "name": "Silver Frame",
+      "category": "frame",
+      "rarity": "rare",
+      "price": 600,
+      "levelReq": 10,
+      "bodyVariant": false,
+      "desc": "square UI card frame, polished silver ornate border, empty transparent center"
+    },
+    {
+      "id": "frame_gold",
+      "name": "Gold Frame",
+      "category": "frame",
+      "rarity": "legendary",
+      "price": 6000,
+      "levelReq": 26,
+      "bodyVariant": false,
+      "desc": "square UI card frame, glowing gold ornate border with small gems, empty transparent center"
+    },
+    {
+      "id": "emote_cheer",
+      "name": "Victory Cheer",
+      "category": "emote",
+      "rarity": "uncommon",
+      "price": 350,
+      "levelReq": 5,
+      "bodyVariant": true,
+      "desc": "happy two-arms-up victory cheer pose"
+    },
+    {
+      "id": "emote_flex",
+      "name": "Power Flex",
+      "category": "emote",
+      "rarity": "rare",
+      "price": 750,
+      "levelReq": 13,
+      "bodyVariant": true,
+      "desc": "confident strong flex pose"
+    }
+  ],
+  "sets": [
+    {
+      "id": "cosmic",
+      "name": "Cosmic Set",
+      "pieces": [
+        "outfit_mage",
+        "head_halo",
+        "wpn_starsword",
+        "aura_cosmic",
+        "bg_galaxy",
+        "outfit_celestial"
+      ],
+      "bonus": {
+        "type": "aura",
+        "note": "Unlocks an exclusive animated 'Cosmic Champion' nameplate + 10% coin bonus."
+      }
+    }
+  ]
+}

@@ -154,6 +154,23 @@ service cloud.firestore {
         allow update, delete: if isParent(fid);
       }
 
+      // Per-child avatar. Cosmetic fields (bodyType/skinTone/equipped) are
+      // child-writable; owned + coinsSpent are written ONLY by the
+      // avatarPurchase Cloud Function (Admin SDK), so purchases stay earned-only.
+      match /avatars/{childId} {
+        allow read: if isMember(fid);
+        allow create: if isMember(fid)
+          && request.resource.data.keys().hasOnly(['bodyType', 'skinTone', 'equipped', 'owned', 'coinsSpent'])
+          && request.resource.data.bodyType is string
+          && request.resource.data.skinTone is string
+          && request.resource.data.equipped is map
+          && request.resource.data.owned is list && request.resource.data.owned.size() == 0
+          && request.resource.data.coinsSpent == 0;
+        allow update: if isMember(fid)
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['bodyType', 'skinTone', 'equipped']);
+        allow delete: if isParent(fid);
+      }
+
       match /rewardClaims/{claimId} {
         allow read: if isMember(fid);
         allow create: if isMember(fid)

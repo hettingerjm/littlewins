@@ -41,3 +41,6 @@ yarn-error.log*
 
 # TypeScript build info
 *.tsbuildinfo
+
+# Hero Quest avatar module: heavy source PNGs (regenerate via download_assets.sh)
+hero-quest-avatar-module/assets/

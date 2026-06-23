@@ -1,0 +1,312 @@
+{
+  "_readme": "Reproducible art recipe. Generate each body type's base_warm FIRST as the master; pass its media_id as `reference` for that body type's stages, skin-tone bases, outfits, and emotes so the character stays consistent. Overlays (headgear/weapon/pet/aura/background/frame) are body-agnostic; run each through Higgsfield autosprite (remove_bg=ultra) for transparent PNGs.",
+  "style": {
+    "token": "Stylized cel-shaded 3D art, Fortnite-meets-Zelda-Wind-Waker, bold readable shapes, vibrant saturated colors, soft studio lighting, heroic slightly-stylized proportions (NOT overly chibi, not babyish), modest clothing, wholesome and age-appropriate for kids 8-15, non-violent cartoon fantasy, clean silhouette, collectible game-art look.",
+    "negative": "no gore, no realistic weapons, no scary or dark imagery, no sexualization, no brand logos",
+    "defaultModel": "nano_banana_pro",
+    "consistencyModel": "nano_banana_2",
+    "spriteTool": "autosprite (remove_bg=ultra)",
+    "altStyles": {
+      "pixel": "16-bit pixel-art RPG sprite, crisp pixels, limited palette",
+      "anime": "clean cel-shaded anime, bright flat colors, bold outlines",
+      "claymation": "soft clay/3D toy look, rounded matte surfaces"
+    }
+  },
+  "sheets": {
+    "evolution_male": {
+      "model": "nano_banana_pro",
+      "aspect_ratio": "16:9",
+      "resolution": "2k",
+      "prompt": "Stylized cel-shaded 3D art, Fortnite-meets-Zelda-Wind-Waker, bold readable shapes, vibrant saturated colors, soft studio lighting, heroic slightly-stylized proportions (NOT overly chibi, not babyish), modest clothing, wholesome and age-appropriate for kids 8-15, non-violent cartoon fantasy, clean silhouette, collectible game-art look. Progression sheet: the SAME boy hero shown 5x left-to-right leveling up Rookie->Legend, labeled, full-body, soft gradient background."
+    },
+    "evolution_female": {
+      "model": "nano_banana_pro",
+      "aspect_ratio": "16:9",
+      "resolution": "2k",
+      "prompt": "Stylized cel-shaded 3D art, Fortnite-meets-Zelda-Wind-Waker, bold readable shapes, vibrant saturated colors, soft studio lighting, heroic slightly-stylized proportions (NOT overly chibi, not babyish), modest clothing, wholesome and age-appropriate for kids 8-15, non-violent cartoon fantasy, clean silhouette, collectible game-art look. Progression sheet: the SAME girl hero (ponytail) shown 5x left-to-right leveling up Rookie->Legend, labeled, full-body, soft gradient background."
+    },
+    "outfits_showcase": {
+      "model": "nano_banana_pro",
+      "aspect_ratio": "16:9",
+      "resolution": "2k",
+      "prompt": "Stylized cel-shaded 3D art, Fortnite-meets-Zelda-Wind-Waker, bold readable shapes, vibrant saturated colors, soft studio lighting, heroic slightly-stylized proportions (NOT overly chibi, not babyish), modest clothing, wholesome and age-appropriate for kids 8-15, non-violent cartoon fantasy, clean silhouette, collectible game-art look. Outfit showcase: top row boy hero, bottom row girl hero, each in the 5 outfits (Ranger, Knight, Mage, Dragonlord, Celestial), labeled."
+    },
+    "base_lineup": {
+      "model": "nano_banana_pro",
+      "aspect_ratio": "16:9",
+      "resolution": "2k",
+      "prompt": "Stylized cel-shaded 3D art, Fortnite-meets-Zelda-Wind-Waker, bold readable shapes, vibrant saturated colors, soft studio lighting, heroic slightly-stylized proportions (NOT overly chibi, not babyish), modest clothing, wholesome and age-appropriate for kids 8-15, non-violent cartoon fantasy, clean silhouette, collectible game-art look. Avatar-creator lineup: top row boy hero, bottom row girl hero, each in 4 skin tones (Fair, Warm, Tan, Deep), plain clothing, identical neutral pose."
+    },
+    "shop_items": {
+      "model": "nano_banana_pro",
+      "aspect_ratio": "1:1",
+      "resolution": "2k",
+      "prompt": "Stylized cel-shaded 3D art, Fortnite-meets-Zelda-Wind-Waker, bold readable shapes, vibrant saturated colors, soft studio lighting, heroic slightly-stylized proportions (NOT overly chibi, not babyish), modest clothing, wholesome and age-appropriate for kids 8-15, non-violent cartoon fantasy, clean silhouette, collectible game-art look. 4x4 icon grid of shop items (caps, crown, halo, horns, bow, staff, flame sword, star sword, fox, dragon, owl, phoenix, sparkle aura, flame aura, galaxy, gold frame) on soft neutral tiles."
+    }
+  },
+  "avatars": {
+    "male/base_warm": {
+      "model": "nano_banana_pro",
+      "aspect_ratio": "1:1",
+      "resolution": "2k",
+      "removeBackground": true,
+      "prompt": "Stylized cel-shaded 3D art, Fortnite-meets-Zelda-Wind-Waker, bold readable shapes, vibrant saturated colors, soft studio lighting, heroic slightly-stylized proportions (NOT overly chibi, not babyish), modest clothing, wholesome and age-appropriate for kids 8-15, non-violent cartoon fantasy, clean silhouette, collectible game-art look. Full-body neutral starter hero: a boy hero with short tidy hair, warm medium skin tone, plain undershirt and simple pants, no gear, neutral friendly expression, centered, transparent background. THIS IS THE MASTER for body type 'male' — reuse as reference for all 'male' assets."
+    },
+    "male/base_fair": {
+      "reference": "male/base_warm",
+      "removeBackground": true,
+      "prompt": "Stylized cel-shaded 3D art, Fortnite-meets-Zelda-Wind-Waker, bold readable shapes, vibrant saturated colors, soft studio lighting, heroic slightly-stylized proportions (NOT overly chibi, not babyish), modest clothing, wholesome and age-appropriate for kids 8-15, non-violent cartoon fantasy, clean silhouette, collectible game-art look. Same hero as reference (a boy hero with short tidy hair), fair skin tone variant, plain clothing, transparent background."
+    },
+    "male/base_tan": {
+      "reference": "male/base_warm",
+      "removeBackground": true,
+      "prompt": "Stylized cel-shaded 3D art, Fortnite-meets-Zelda-Wind-Waker, bold readable shapes, vibrant saturated colors, soft studio lighting, heroic slightly-stylized proportions (NOT overly chibi, not babyish), modest clothing, wholesome and age-appropriate for kids 8-15, non-violent cartoon fantasy, clean silhouette, collectible game-art look. Same hero as reference (a boy hero with short tidy hair), tan/olive skin tone variant, plain clothing, transparent background."
+    },
+    "male/base_deep": {
+      "reference": "male/base_warm",
+      "removeBackground": true,
+      "prompt": "Stylized cel-shaded 3D art, Fortnite-meets-Zelda-Wind-Waker, bold readable shapes, vibrant saturated colors, soft studio lighting, heroic slightly-stylized proportions (NOT overly chibi, not babyish), modest clothing, wholesome and age-appropriate for kids 8-15, non-violent cartoon fantasy, clean silhouette, collectible game-art look. Same hero as reference (a boy hero with short tidy hair), deep skin tone variant, plain clothing, transparent background."
+    },
+    "male/stage1_rookie": {
+      "reference": "male/base_warm",
+      "removeBackground": true,
+      "prompt": "Stylized cel-shaded 3D art, Fortnite-meets-Zelda-Wind-Waker, bold readable shapes, vibrant saturated colors, soft studio lighting, heroic slightly-stylized proportions (NOT overly chibi, not babyish), modest clothing, wholesome and age-appropriate for kids 8-15, non-violent cartoon fantasy, clean silhouette, collectible game-art look. Same hero as reference (a boy hero with short tidy hair), ROOKIE: plain tan tunic, tiny wooden stick, small and eager, full-body, transparent background."
+    },
+    "male/stage2_apprentice": {
+      "reference": "male/base_warm",
+      "removeBackground": true,
+      "prompt": "Stylized cel-shaded 3D art, Fortnite-meets-Zelda-Wind-Waker, bold readable shapes, vibrant saturated colors, soft studio lighting, heroic slightly-stylized proportions (NOT overly chibi, not babyish), modest clothing, wholesome and age-appropriate for kids 8-15, non-violent cartoon fantasy, clean silhouette, collectible game-art look. Same hero as reference (a boy hero with short tidy hair), APPRENTICE: leather vest, short cloth cape, wooden shortsword, full-body, transparent background."
+    },
+    "male/stage3_adventurer": {
+      "reference": "male/base_warm",
+      "removeBackground": true,
+      "prompt": "Stylized cel-shaded 3D art, Fortnite-meets-Zelda-Wind-Waker, bold readable shapes, vibrant saturated colors, soft studio lighting, heroic slightly-stylized proportions (NOT overly chibi, not babyish), modest clothing, wholesome and age-appropriate for kids 8-15, non-violent cartoon fantasy, clean silhouette, collectible game-art look. Same hero as reference (a boy hero with short tidy hair), ADVENTURER: light steel chest armor, blue cloak, glowing toy-like sword, confident, full-body, transparent background."
+    },
+    "male/stage4_champion": {
+      "reference": "male/base_warm",
+      "removeBackground": true,
+      "prompt": "Stylized cel-shaded 3D art, Fortnite-meets-Zelda-Wind-Waker, bold readable shapes, vibrant saturated colors, soft studio lighting, heroic slightly-stylized proportions (NOT overly chibi, not babyish), modest clothing, wholesome and age-appropriate for kids 8-15, non-violent cartoon fantasy, clean silhouette, collectible game-art look. Same hero as reference (a boy hero with short tidy hair), CHAMPION: ornate golden armor, flowing red cape, bright magic sword, heroic stance, full-body, transparent background."
+    },
+    "male/stage5_legend": {
+      "reference": "male/base_warm",
+      "removeBackground": true,
+      "prompt": "Stylized cel-shaded 3D art, Fortnite-meets-Zelda-Wind-Waker, bold readable shapes, vibrant saturated colors, soft studio lighting, heroic slightly-stylized proportions (NOT overly chibi, not babyish), modest clothing, wholesome and age-appropriate for kids 8-15, non-violent cartoon fantasy, clean silhouette, collectible game-art look. Same hero as reference (a boy hero with short tidy hair), LEGEND: glowing radiant armor, energy aura, small angelic wings, magic blade, majestic, full-body, transparent background."
+    },
+    "male/stage6_ascended": {
+      "reference": "male/base_warm",
+      "removeBackground": true,
+      "prompt": "Stylized cel-shaded 3D art, Fortnite-meets-Zelda-Wind-Waker, bold readable shapes, vibrant saturated colors, soft studio lighting, heroic slightly-stylized proportions (NOT overly chibi, not babyish), modest clothing, wholesome and age-appropriate for kids 8-15, non-violent cartoon fantasy, clean silhouette, collectible game-art look. Same hero as reference (a boy hero with short tidy hair), ASCENDED: maxed-out radiant legendary form, brilliant halo of light, prismatic armor, full-body, transparent background."
+    },
+    "female/base_warm": {
+      "model": "nano_banana_pro",
+      "aspect_ratio": "1:1",
+      "resolution": "2k",
+      "removeBackground": true,
+      "prompt": "Stylized cel-shaded 3D art, Fortnite-meets-Zelda-Wind-Waker, bold readable shapes, vibrant saturated colors, soft studio lighting, heroic slightly-stylized proportions (NOT overly chibi, not babyish), modest clothing, wholesome and age-appropriate for kids 8-15, non-violent cartoon fantasy, clean silhouette, collectible game-art look. Full-body neutral starter hero: a girl hero with a ponytail, warm medium skin tone, plain undershirt and simple pants, no gear, neutral friendly expression, centered, transparent background. THIS IS THE MASTER for body type 'female' — reuse as reference for all 'female' assets."
+    },
+    "female/base_fair": {
+      "reference": "female/base_warm",
+      "removeBackground": true,
+      "prompt": "Stylized cel-shaded 3D art, Fortnite-meets-Zelda-Wind-Waker, bold readable shapes, vibrant saturated colors, soft studio lighting, heroic slightly-stylized proportions (NOT overly chibi, not babyish), modest clothing, wholesome and age-appropriate for kids 8-15, non-violent cartoon fantasy, clean silhouette, collectible game-art look. Same hero as reference (a girl hero with a ponytail), fair skin tone variant, plain clothing, transparent background."
+    },
+    "female/base_tan": {
+      "reference": "female/base_warm",
+      "removeBackground": true,
+      "prompt": "Stylized cel-shaded 3D art, Fortnite-meets-Zelda-Wind-Waker, bold readable shapes, vibrant saturated colors, soft studio lighting, heroic slightly-stylized proportions (NOT overly chibi, not babyish), modest clothing, wholesome and age-appropriate for kids 8-15, non-violent cartoon fantasy, clean silhouette, collectible game-art look. Same hero as reference (a girl hero with a ponytail), tan/olive skin tone variant, plain clothing, transparent background."
+    },
+    "female/base_deep": {
+      "reference": "female/base_warm",
+      "removeBackground": true,
+      "prompt": "Stylized cel-shaded 3D art, Fortnite-meets-Zelda-Wind-Waker, bold readable shapes, vibrant saturated colors, soft studio lighting, heroic slightly-stylized proportions (NOT overly chibi, not babyish), modest clothing, wholesome and age-appropriate for kids 8-15, non-violent cartoon fantasy, clean silhouette, collectible game-art look. Same hero as reference (a girl hero with a ponytail), deep skin tone variant, plain clothing, transparent background."
+    },
+    "female/stage1_rookie": {
+      "reference": "female/base_warm",
+      "removeBackground": true,
+      "prompt": "Stylized cel-shaded 3D art, Fortnite-meets-Zelda-Wind-Waker, bold readable shapes, vibrant saturated colors, soft studio lighting, heroic slightly-stylized proportions (NOT overly chibi, not babyish), modest clothing, wholesome and age-appropriate for kids 8-15, non-violent cartoon fantasy, clean silhouette, collectible game-art look. Same hero as reference (a girl hero with a ponytail), ROOKIE: plain tan tunic, tiny wooden stick, small and eager, full-body, transparent background."
+    },
+    "female/stage2_apprentice": {
+      "reference": "female/base_warm",
+      "removeBackground": true,
+      "prompt": "Stylized cel-shaded 3D art, Fortnite-meets-Zelda-Wind-Waker, bold readable shapes, vibrant saturated colors, soft studio lighting, heroic slightly-stylized proportions (NOT overly chibi, not babyish), modest clothing, wholesome and age-appropriate for kids 8-15, non-violent cartoon fantasy, clean silhouette, collectible game-art look. Same hero as reference (a girl hero with a ponytail), APPRENTICE: leather vest, short cloth cape, wooden shortsword, full-body, transparent background."
+    },
+    "female/stage3_adventurer": {
+      "reference": "female/base_warm",
+      "removeBackground": true,
+      "prompt": "Stylized cel-shaded 3D art, Fortnite-meets-Zelda-Wind-Waker, bold readable shapes, vibrant saturated colors, soft studio lighting, heroic slightly-stylized proportions (NOT overly chibi, not babyish), modest clothing, wholesome and age-appropriate for kids 8-15, non-violent cartoon fantasy, clean silhouette, collectible game-art look. Same hero as reference (a girl hero with a ponytail), ADVENTURER: light steel chest armor, blue cloak, glowing toy-like sword, confident, full-body, transparent background."
+    },
+    "female/stage4_champion": {
+      "reference": "female/base_warm",
+      "removeBackground": true,
+      "prompt": "Stylized cel-shaded 3D art, Fortnite-meets-Zelda-Wind-Waker, bold readable shapes, vibrant saturated colors, soft studio lighting, heroic slightly-stylized proportions (NOT overly chibi, not babyish), modest clothing, wholesome and age-appropriate for kids 8-15, non-violent cartoon fantasy, clean silhouette, collectible game-art look. Same hero as reference (a girl hero with a ponytail), CHAMPION: ornate golden armor, flowing red cape, bright magic sword, heroic stance, full-body, transparent background."
+    },
+    "female/stage5_legend": {
+      "reference": "female/base_warm",
+      "removeBackground": true,
+      "prompt": "Stylized cel-shaded 3D art, Fortnite-meets-Zelda-Wind-Waker, bold readable shapes, vibrant saturated colors, soft studio lighting, heroic slightly-stylized proportions (NOT overly chibi, not babyish), modest clothing, wholesome and age-appropriate for kids 8-15, non-violent cartoon fantasy, clean silhouette, collectible game-art look. Same hero as reference (a girl hero with a ponytail), LEGEND: glowing radiant armor, energy aura, small angelic wings, magic blade, majestic, full-body, transparent background."
+    },
+    "female/stage6_ascended": {
+      "reference": "female/base_warm",
+      "removeBackground": true,
+      "prompt": "Stylized cel-shaded 3D art, Fortnite-meets-Zelda-Wind-Waker, bold readable shapes, vibrant saturated colors, soft studio lighting, heroic slightly-stylized proportions (NOT overly chibi, not babyish), modest clothing, wholesome and age-appropriate for kids 8-15, non-violent cartoon fantasy, clean silhouette, collectible game-art look. Same hero as reference (a girl hero with a ponytail), ASCENDED: maxed-out radiant legendary form, brilliant halo of light, prismatic armor, full-body, transparent background."
+    }
+  },
+  "items": {
+    "male/outfit_ranger": {
+      "reference": "male/base_warm",
+      "removeBackground": true,
+      "prompt": "Stylized cel-shaded 3D art, Fortnite-meets-Zelda-Wind-Waker, bold readable shapes, vibrant saturated colors, soft studio lighting, heroic slightly-stylized proportions (NOT overly chibi, not babyish), modest clothing, wholesome and age-appropriate for kids 8-15, non-violent cartoon fantasy, clean silhouette, collectible game-art look. Same hero as reference (a boy hero with short tidy hair) wearing Forest Ranger: green hooded cloak, leather bracers, full-body, transparent background."
+    },
+    "female/outfit_ranger": {
+      "reference": "female/base_warm",
+      "removeBackground": true,
+      "prompt": "Stylized cel-shaded 3D art, Fortnite-meets-Zelda-Wind-Waker, bold readable shapes, vibrant saturated colors, soft studio lighting, heroic slightly-stylized proportions (NOT overly chibi, not babyish), modest clothing, wholesome and age-appropriate for kids 8-15, non-violent cartoon fantasy, clean silhouette, collectible game-art look. Same hero as reference (a girl hero with a ponytail) wearing Forest Ranger: green hooded cloak, leather bracers, full-body, transparent background."
+    },
+    "male/outfit_knight": {
+      "reference": "male/base_warm",
+      "removeBackground": true,
+      "prompt": "Stylized cel-shaded 3D art, Fortnite-meets-Zelda-Wind-Waker, bold readable shapes, vibrant saturated colors, soft studio lighting, heroic slightly-stylized proportions (NOT overly chibi, not babyish), modest clothing, wholesome and age-appropriate for kids 8-15, non-violent cartoon fantasy, clean silhouette, collectible game-art look. Same hero as reference (a boy hero with short tidy hair) wearing Royal Knight: polished blue-and-silver plate armor, tabard, full-body, transparent background."
+    },
+    "female/outfit_knight": {
+      "reference": "female/base_warm",
+      "removeBackground": true,
+      "prompt": "Stylized cel-shaded 3D art, Fortnite-meets-Zelda-Wind-Waker, bold readable shapes, vibrant saturated colors, soft studio lighting, heroic slightly-stylized proportions (NOT overly chibi, not babyish), modest clothing, wholesome and age-appropriate for kids 8-15, non-violent cartoon fantasy, clean silhouette, collectible game-art look. Same hero as reference (a girl hero with a ponytail) wearing Royal Knight: polished blue-and-silver plate armor, tabard, full-body, transparent background."
+    },
+    "male/outfit_mage": {
+      "reference": "male/base_warm",
+      "removeBackground": true,
+      "prompt": "Stylized cel-shaded 3D art, Fortnite-meets-Zelda-Wind-Waker, bold readable shapes, vibrant saturated colors, soft studio lighting, heroic slightly-stylized proportions (NOT overly chibi, not babyish), modest clothing, wholesome and age-appropriate for kids 8-15, non-violent cartoon fantasy, clean silhouette, collectible game-art look. Same hero as reference (a boy hero with short tidy hair) wearing Star Mage: deep purple robe with star patterns, full-body, transparent background."
+    },
+    "female/outfit_mage": {
+      "reference": "female/base_warm",
+      "removeBackground": true,
+      "prompt": "Stylized cel-shaded 3D art, Fortnite-meets-Zelda-Wind-Waker, bold readable shapes, vibrant saturated colors, soft studio lighting, heroic slightly-stylized proportions (NOT overly chibi, not babyish), modest clothing, wholesome and age-appropriate for kids 8-15, non-violent cartoon fantasy, clean silhouette, collectible game-art look. Same hero as reference (a girl hero with a ponytail) wearing Star Mage: deep purple robe with star patterns, full-body, transparent background."
+    },
+    "male/outfit_dragon": {
+      "reference": "male/base_warm",
+      "removeBackground": true,
+      "prompt": "Stylized cel-shaded 3D art, Fortnite-meets-Zelda-Wind-Waker, bold readable shapes, vibrant saturated colors, soft studio lighting, heroic slightly-stylized proportions (NOT overly chibi, not babyish), modest clothing, wholesome and age-appropriate for kids 8-15, non-violent cartoon fantasy, clean silhouette, collectible game-art look. Same hero as reference (a boy hero with short tidy hair) wearing Dragonlord: dark scaled armor with glowing red accents, small friendly shoulder spikes, full-body, transparent background."
+    },
+    "female/outfit_dragon": {
+      "reference": "female/base_warm",
+      "removeBackground": true,
+      "prompt": "Stylized cel-shaded 3D art, Fortnite-meets-Zelda-Wind-Waker, bold readable shapes, vibrant saturated colors, soft studio lighting, heroic slightly-stylized proportions (NOT overly chibi, not babyish), modest clothing, wholesome and age-appropriate for kids 8-15, non-violent cartoon fantasy, clean silhouette, collectible game-art look. Same hero as reference (a girl hero with a ponytail) wearing Dragonlord: dark scaled armor with glowing red accents, small friendly shoulder spikes, full-body, transparent background."
+    },
+    "male/outfit_celestial": {
+      "reference": "male/base_warm",
+      "removeBackground": true,
+      "prompt": "Stylized cel-shaded 3D art, Fortnite-meets-Zelda-Wind-Waker, bold readable shapes, vibrant saturated colors, soft studio lighting, heroic slightly-stylized proportions (NOT overly chibi, not babyish), modest clothing, wholesome and age-appropriate for kids 8-15, non-violent cartoon fantasy, clean silhouette, collectible game-art look. Same hero as reference (a boy hero with short tidy hair) wearing Celestial Hero: white-and-gold radiant armor, soft light wings, full-body, transparent background."
+    },
+    "female/outfit_celestial": {
+      "reference": "female/base_warm",
+      "removeBackground": true,
+      "prompt": "Stylized cel-shaded 3D art, Fortnite-meets-Zelda-Wind-Waker, bold readable shapes, vibrant saturated colors, soft studio lighting, heroic slightly-stylized proportions (NOT overly chibi, not babyish), modest clothing, wholesome and age-appropriate for kids 8-15, non-violent cartoon fantasy, clean silhouette, collectible game-art look. Same hero as reference (a girl hero with a ponytail) wearing Celestial Hero: white-and-gold radiant armor, soft light wings, full-body, transparent background."
+    },
+    "head_cap": {
+      "removeBackground": true,
+      "prompt": "Stylized cel-shaded 3D art, Fortnite-meets-Zelda-Wind-Waker, bold readable shapes, vibrant saturated colors, soft studio lighting, heroic slightly-stylized proportions (NOT overly chibi, not babyish), modest clothing, wholesome and age-appropriate for kids 8-15, non-violent cartoon fantasy, clean silhouette, collectible game-art look. Single headgear item: green explorer cap, transparent background, centered."
+    },
+    "head_horns": {
+      "removeBackground": true,
+      "prompt": "Stylized cel-shaded 3D art, Fortnite-meets-Zelda-Wind-Waker, bold readable shapes, vibrant saturated colors, soft studio lighting, heroic slightly-stylized proportions (NOT overly chibi, not babyish), modest clothing, wholesome and age-appropriate for kids 8-15, non-violent cartoon fantasy, clean silhouette, collectible game-art look. Single headgear item: stylized cartoon battle-horns headband, transparent background, centered."
+    },
+    "head_crown": {
+      "removeBackground": true,
+      "prompt": "Stylized cel-shaded 3D art, Fortnite-meets-Zelda-Wind-Waker, bold readable shapes, vibrant saturated colors, soft studio lighting, heroic slightly-stylized proportions (NOT overly chibi, not babyish), modest clothing, wholesome and age-appropriate for kids 8-15, non-violent cartoon fantasy, clean silhouette, collectible game-art look. Single headgear item: golden jeweled crown, transparent background, centered."
+    },
+    "head_halo": {
+      "removeBackground": true,
+      "prompt": "Stylized cel-shaded 3D art, Fortnite-meets-Zelda-Wind-Waker, bold readable shapes, vibrant saturated colors, soft studio lighting, heroic slightly-stylized proportions (NOT overly chibi, not babyish), modest clothing, wholesome and age-appropriate for kids 8-15, non-violent cartoon fantasy, clean silhouette, collectible game-art look. Single headgear item: glowing golden star halo ring, transparent background, centered."
+    },
+    "wpn_bow": {
+      "removeBackground": true,
+      "prompt": "Stylized cel-shaded 3D art, Fortnite-meets-Zelda-Wind-Waker, bold readable shapes, vibrant saturated colors, soft studio lighting, heroic slightly-stylized proportions (NOT overly chibi, not babyish), modest clothing, wholesome and age-appropriate for kids 8-15, non-violent cartoon fantasy, clean silhouette, collectible game-art look. Single weapon item: carved oak bow, transparent background, centered."
+    },
+    "wpn_staff": {
+      "removeBackground": true,
+      "prompt": "Stylized cel-shaded 3D art, Fortnite-meets-Zelda-Wind-Waker, bold readable shapes, vibrant saturated colors, soft studio lighting, heroic slightly-stylized proportions (NOT overly chibi, not babyish), modest clothing, wholesome and age-appropriate for kids 8-15, non-violent cartoon fantasy, clean silhouette, collectible game-art look. Single weapon item: crystal-topped wizard staff, glowing, transparent background, centered."
+    },
+    "wpn_flameblade": {
+      "removeBackground": true,
+      "prompt": "Stylized cel-shaded 3D art, Fortnite-meets-Zelda-Wind-Waker, bold readable shapes, vibrant saturated colors, soft studio lighting, heroic slightly-stylized proportions (NOT overly chibi, not babyish), modest clothing, wholesome and age-appropriate for kids 8-15, non-violent cartoon fantasy, clean silhouette, collectible game-art look. Single weapon item: cartoon sword wreathed in friendly orange flames, transparent background, centered."
+    },
+    "wpn_starsword": {
+      "removeBackground": true,
+      "prompt": "Stylized cel-shaded 3D art, Fortnite-meets-Zelda-Wind-Waker, bold readable shapes, vibrant saturated colors, soft studio lighting, heroic slightly-stylized proportions (NOT overly chibi, not babyish), modest clothing, wholesome and age-appropriate for kids 8-15, non-violent cartoon fantasy, clean silhouette, collectible game-art look. Single weapon item: glowing blue star-energy sword, transparent background, centered."
+    },
+    "pet_fox": {
+      "removeBackground": true,
+      "prompt": "Stylized cel-shaded 3D art, Fortnite-meets-Zelda-Wind-Waker, bold readable shapes, vibrant saturated colors, soft studio lighting, heroic slightly-stylized proportions (NOT overly chibi, not babyish), modest clothing, wholesome and age-appropriate for kids 8-15, non-violent cartoon fantasy, clean silhouette, collectible game-art look. Single pet item: cute ember fox with glowing tail, sitting, transparent background, centered."
+    },
+    "pet_owl": {
+      "removeBackground": true,
+      "prompt": "Stylized cel-shaded 3D art, Fortnite-meets-Zelda-Wind-Waker, bold readable shapes, vibrant saturated colors, soft studio lighting, heroic slightly-stylized proportions (NOT overly chibi, not babyish), modest clothing, wholesome and age-appropriate for kids 8-15, non-violent cartoon fantasy, clean silhouette, collectible game-art look. Single pet item: snowy owl with big friendly eyes, transparent background, centered."
+    },
+    "pet_dragon": {
+      "removeBackground": true,
+      "prompt": "Stylized cel-shaded 3D art, Fortnite-meets-Zelda-Wind-Waker, bold readable shapes, vibrant saturated colors, soft studio lighting, heroic slightly-stylized proportions (NOT overly chibi, not babyish), modest clothing, wholesome and age-appropriate for kids 8-15, non-violent cartoon fantasy, clean silhouette, collectible game-art look. Single pet item: chubby friendly baby dragon, transparent background, centered."
+    },
+    "pet_phoenix": {
+      "removeBackground": true,
+      "prompt": "Stylized cel-shaded 3D art, Fortnite-meets-Zelda-Wind-Waker, bold readable shapes, vibrant saturated colors, soft studio lighting, heroic slightly-stylized proportions (NOT overly chibi, not babyish), modest clothing, wholesome and age-appropriate for kids 8-15, non-violent cartoon fantasy, clean silhouette, collectible game-art look. Single pet item: glowing phoenix chick with soft fire feathers, transparent background, centered."
+    },
+    "aura_sparkle": {
+      "removeBackground": true,
+      "prompt": "Stylized cel-shaded 3D art, Fortnite-meets-Zelda-Wind-Waker, bold readable shapes, vibrant saturated colors, soft studio lighting, heroic slightly-stylized proportions (NOT overly chibi, not babyish), modest clothing, wholesome and age-appropriate for kids 8-15, non-violent cartoon fantasy, clean silhouette, collectible game-art look. Single aura item: ring of gold sparkles, no character, transparent background, centered."
+    },
+    "aura_flame": {
+      "removeBackground": true,
+      "prompt": "Stylized cel-shaded 3D art, Fortnite-meets-Zelda-Wind-Waker, bold readable shapes, vibrant saturated colors, soft studio lighting, heroic slightly-stylized proportions (NOT overly chibi, not babyish), modest clothing, wholesome and age-appropriate for kids 8-15, non-violent cartoon fantasy, clean silhouette, collectible game-art look. Single aura item: friendly orange flame aura ring, no character, transparent background, centered."
+    },
+    "aura_cosmic": {
+      "removeBackground": true,
+      "prompt": "Stylized cel-shaded 3D art, Fortnite-meets-Zelda-Wind-Waker, bold readable shapes, vibrant saturated colors, soft studio lighting, heroic slightly-stylized proportions (NOT overly chibi, not babyish), modest clothing, wholesome and age-appropriate for kids 8-15, non-violent cartoon fantasy, clean silhouette, collectible game-art look. Single aura item: swirling purple-and-blue cosmic energy ring with stars, no character, transparent background, centered."
+    },
+    "bg_meadow": {
+      "removeBackground": false,
+      "aspect_ratio": "1:1",
+      "prompt": "Stylized cel-shaded 3D art, Fortnite-meets-Zelda-Wind-Waker, bold readable shapes, vibrant saturated colors, soft studio lighting, heroic slightly-stylized proportions (NOT overly chibi, not babyish), modest clothing, wholesome and age-appropriate for kids 8-15, non-violent cartoon fantasy, clean silhouette, collectible game-art look. Single background item: sunny green meadow with flowers and blue sky, scene only no character."
+    },
+    "bg_castle": {
+      "removeBackground": false,
+      "aspect_ratio": "1:1",
+      "prompt": "Stylized cel-shaded 3D art, Fortnite-meets-Zelda-Wind-Waker, bold readable shapes, vibrant saturated colors, soft studio lighting, heroic slightly-stylized proportions (NOT overly chibi, not babyish), modest clothing, wholesome and age-appropriate for kids 8-15, non-violent cartoon fantasy, clean silhouette, collectible game-art look. Single background item: warm stone castle great hall with banners, scene only no character."
+    },
+    "bg_galaxy": {
+      "removeBackground": false,
+      "aspect_ratio": "1:1",
+      "prompt": "Stylized cel-shaded 3D art, Fortnite-meets-Zelda-Wind-Waker, bold readable shapes, vibrant saturated colors, soft studio lighting, heroic slightly-stylized proportions (NOT overly chibi, not babyish), modest clothing, wholesome and age-appropriate for kids 8-15, non-violent cartoon fantasy, clean silhouette, collectible game-art look. Single background item: vibrant galaxy with nebula and stars, scene only no character."
+    },
+    "frame_bronze": {
+      "removeBackground": true,
+      "prompt": "Stylized cel-shaded 3D art, Fortnite-meets-Zelda-Wind-Waker, bold readable shapes, vibrant saturated colors, soft studio lighting, heroic slightly-stylized proportions (NOT overly chibi, not babyish), modest clothing, wholesome and age-appropriate for kids 8-15, non-violent cartoon fantasy, clean silhouette, collectible game-art look. Single frame item: square UI card frame, bronze rounded border, empty transparent center, transparent background, centered."
+    },
+    "frame_silver": {
+      "removeBackground": true,
+      "prompt": "Stylized cel-shaded 3D art, Fortnite-meets-Zelda-Wind-Waker, bold readable shapes, vibrant saturated colors, soft studio lighting, heroic slightly-stylized proportions (NOT overly chibi, not babyish), modest clothing, wholesome and age-appropriate for kids 8-15, non-violent cartoon fantasy, clean silhouette, collectible game-art look. Single frame item: square UI card frame, polished silver ornate border, empty transparent center, transparent background, centered."
+    },
+    "frame_gold": {
+      "removeBackground": true,
+      "prompt": "Stylized cel-shaded 3D art, Fortnite-meets-Zelda-Wind-Waker, bold readable shapes, vibrant saturated colors, soft studio lighting, heroic slightly-stylized proportions (NOT overly chibi, not babyish), modest clothing, wholesome and age-appropriate for kids 8-15, non-violent cartoon fantasy, clean silhouette, collectible game-art look. Single frame item: square UI card frame, glowing gold ornate border with small gems, empty transparent center, transparent background, centered."
+    },
+    "male/emote_cheer": {
+      "reference": "male/base_warm",
+      "removeBackground": true,
+      "prompt": "Stylized cel-shaded 3D art, Fortnite-meets-Zelda-Wind-Waker, bold readable shapes, vibrant saturated colors, soft studio lighting, heroic slightly-stylized proportions (NOT overly chibi, not babyish), modest clothing, wholesome and age-appropriate for kids 8-15, non-violent cartoon fantasy, clean silhouette, collectible game-art look. Same hero as reference (a boy hero with short tidy hair) doing a happy two-arms-up victory cheer pose, full-body, transparent background."
+    },
+    "female/emote_cheer": {
+      "reference": "female/base_warm",
+      "removeBackground": true,
+      "prompt": "Stylized cel-shaded 3D art, Fortnite-meets-Zelda-Wind-Waker, bold readable shapes, vibrant saturated colors, soft studio lighting, heroic slightly-stylized proportions (NOT overly chibi, not babyish), modest clothing, wholesome and age-appropriate for kids 8-15, non-violent cartoon fantasy, clean silhouette, collectible game-art look. Same hero as reference (a girl hero with a ponytail) doing a happy two-arms-up victory cheer pose, full-body, transparent background."
+    },
+    "male/emote_flex": {
+      "reference": "male/base_warm",
+      "removeBackground": true,
+      "prompt": "Stylized cel-shaded 3D art, Fortnite-meets-Zelda-Wind-Waker, bold readable shapes, vibrant saturated colors, soft studio lighting, heroic slightly-stylized proportions (NOT overly chibi, not babyish), modest clothing, wholesome and age-appropriate for kids 8-15, non-violent cartoon fantasy, clean silhouette, collectible game-art look. Same hero as reference (a boy hero with short tidy hair) doing a confident strong flex pose, full-body, transparent background."
+    },
+    "female/emote_flex": {
+      "reference": "female/base_warm",
+      "removeBackground": true,
+      "prompt": "Stylized cel-shaded 3D art, Fortnite-meets-Zelda-Wind-Waker, bold readable shapes, vibrant saturated colors, soft studio lighting, heroic slightly-stylized proportions (NOT overly chibi, not babyish), modest clothing, wholesome and age-appropriate for kids 8-15, non-violent cartoon fantasy, clean silhouette, collectible game-art look. Same hero as reference (a girl hero with a ponytail) doing a confident strong flex pose, full-body, transparent background."
+    }
+  }
+}

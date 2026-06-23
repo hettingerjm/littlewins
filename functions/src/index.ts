@@ -17,9 +17,10 @@
 import { createHash } from 'node:crypto'
 import { initializeApp } from 'firebase-admin/app'
 import { getAuth } from 'firebase-admin/auth'
-import { getFirestore, Timestamp } from 'firebase-admin/firestore'
+import { FieldValue, getFirestore, Timestamp } from 'firebase-admin/firestore'
 import { HttpsError, onCall } from 'firebase-functions/v2/https'
 import { setGlobalOptions } from 'firebase-functions/v2'
+import manifest from './avatar-manifest.json'
 
 initializeApp()
 setGlobalOptions({ region: 'us-central1', maxInstances: 5 })
@@ -96,6 +97,92 @@ export const kidLogin = onCall<KidLoginData>(async (request) => {
     role: 'child',
   })
   return { token }
+})
+
+// ---- avatar shop (server-side, earned-only enforcement) ---------------------
+
+function xpToNext(level: number): number {
+  return Math.round(80 * Math.pow(level, 1.45))
+}
+function levelFromTotalXp(totalXp: number, cap: number): number {
+  let level = 1
+  let spent = 0
+  while (level < cap && spent + xpToNext(level) <= totalXp) {
+    spent += xpToNext(level)
+    level++
+  }
+  return level
+}
+function choreSizeForPoints(points: number): 'small' | 'medium' | 'large' | 'boss' {
+  if (points >= 5) return 'boss'
+  if (points >= 3) return 'large'
+  if (points >= 2) return 'medium'
+  return 'small'
+}
+
+interface PurchaseData {
+  childId?: unknown
+  itemId?: unknown
+}
+
+/** Buy a shop item. Re-derives earned coins + level from completions so a child
+ * cannot grant themselves coins or items by writing Firestore directly. */
+export const avatarPurchase = onCall<PurchaseData>(async (request) => {
+  const auth = request.auth
+  const familyId = auth?.token.familyId as string | undefined
+  if (!auth || !familyId) {
+    throw new HttpsError('permission-denied', 'Join a family first.')
+  }
+  const childId = String(request.data?.childId ?? '').trim()
+  const itemId = String(request.data?.itemId ?? '').trim()
+  if (!childId || !itemId) {
+    throw new HttpsError('invalid-argument', 'childId and itemId are required.')
+  }
+
+  const item = (manifest.shop as Array<{ id: string; price: number; levelReq: number }>).find(
+    (i) => i.id === itemId,
+  )
+  if (!item) throw new HttpsError('not-found', 'Unknown item.')
+
+  // Re-derive economy from the child's rule-validated completions.
+  const compsSnap = await db
+    .collection(`families/${familyId}/completions`)
+    .where('childId', '==', childId)
+    .get()
+  let totalXp = 0
+  let earnedCoins = 0
+  const rewards = manifest.economy.choreRewards as Record<string, { xp: number; coins: number }>
+  compsSnap.forEach((d) => {
+    const r = rewards[choreSizeForPoints((d.data().points as number) ?? 0)]
+    totalXp += r.xp
+    earnedCoins += r.coins
+  })
+  const level = levelFromTotalXp(totalXp, manifest.meta.levelCap as number)
+
+  const avatarRef = db.doc(`families/${familyId}/avatars/${childId}`)
+
+  await db.runTransaction(async (tx) => {
+    const snap = await tx.get(avatarRef)
+    const data = (snap.data() ?? {}) as { owned?: string[]; coinsSpent?: number }
+    const owned = data.owned ?? []
+    const coinsSpent = data.coinsSpent ?? 0
+
+    if (owned.includes(itemId)) throw new HttpsError('already-exists', 'Already owned.')
+    if (level < item.levelReq) {
+      throw new HttpsError('failed-precondition', `Reach level ${item.levelReq} first.`)
+    }
+    if (earnedCoins - coinsSpent < item.price) {
+      throw new HttpsError('failed-precondition', 'Not enough coins yet.')
+    }
+
+    tx.set(
+      avatarRef,
+      { owned: FieldValue.arrayUnion(itemId), coinsSpent: coinsSpent + item.price },
+      { merge: true },
+    )
+  })
+
+  return { ok: true, itemId, coinsAvailable: earnedCoins }
 })
 
 interface SetPinData {

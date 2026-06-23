@@ -69,6 +69,10 @@ export default {
           '20%, 60%': { transform: 'translateX(-8px)' },
           '40%, 80%': { transform: 'translateX(8px)' },
         },
+        idle: {
+          '0%, 100%': { transform: 'translateY(0) scale(1)' },
+          '50%': { transform: 'translateY(-6px) scale(1.015)' },
+        },
       },
       animation: {
         pop: 'pop 0.3s ease-in-out',
@@ -81,6 +85,7 @@ export default {
         flicker: 'flicker 1.2s ease-in-out infinite',
         'slide-up-fade': 'slide-up-fade 0.35s cubic-bezier(0.16, 1, 0.3, 1) both',
         shake: 'shake 0.4s ease-in-out',
+        idle: 'idle 3.2s ease-in-out infinite',
       },
     },
   },
