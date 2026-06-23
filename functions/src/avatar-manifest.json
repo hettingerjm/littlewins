@@ -55,19 +55,19 @@
     "choreRewards": {
       "small": {
         "xp": 10,
-        "coins": 5
+        "coins": 10
       },
       "medium": {
         "xp": 25,
-        "coins": 12
+        "coins": 25
       },
       "large": {
         "xp": 50,
-        "coins": 25
+        "coins": 50
       },
       "boss": {
         "xp": 100,
-        "coins": 60
+        "coins": 100
       }
     },
     "streak": {
@@ -526,7 +526,7 @@
       "name": "Forest Ranger",
       "category": "outfit",
       "rarity": "uncommon",
-      "price": 250,
+      "price": 850,
       "levelReq": 5,
       "bodyVariant": true,
       "desc": "Forest Ranger: green hooded cloak, leather bracers"
@@ -536,7 +536,7 @@
       "name": "Royal Knight",
       "category": "outfit",
       "rarity": "rare",
-      "price": 600,
+      "price": 6990,
       "levelReq": 10,
       "bodyVariant": true,
       "desc": "Royal Knight: polished blue-and-silver plate armor, tabard"
@@ -546,7 +546,7 @@
       "name": "Star Mage",
       "category": "outfit",
       "rarity": "epic",
-      "price": 1800,
+      "price": 28710,
       "levelReq": 15,
       "bodyVariant": true,
       "setId": "cosmic",
@@ -557,7 +557,7 @@
       "name": "Dragonlord",
       "category": "outfit",
       "rarity": "legendary",
-      "price": 6500,
+      "price": 157270,
       "levelReq": 25,
       "bodyVariant": true,
       "desc": "Dragonlord: dark scaled armor with glowing red accents, small friendly shoulder spikes"
@@ -567,7 +567,7 @@
       "name": "Celestial Hero",
       "category": "outfit",
       "rarity": "mythic",
-      "price": 16000,
+      "price": 746260,
       "levelReq": 40,
       "bodyVariant": true,
       "setId": "cosmic",
@@ -578,7 +578,7 @@
       "name": "Explorer Cap",
       "category": "headgear",
       "rarity": "common",
-      "price": 80,
+      "price": 50,
       "levelReq": 1,
       "bodyVariant": false,
       "desc": "green explorer cap"
@@ -588,7 +588,7 @@
       "name": "Battle Horns",
       "category": "headgear",
       "rarity": "rare",
-      "price": 450,
+      "price": 3960,
       "levelReq": 8,
       "bodyVariant": false,
       "desc": "stylized cartoon battle-horns headband"
@@ -598,7 +598,7 @@
       "name": "Golden Crown",
       "category": "headgear",
       "rarity": "epic",
-      "price": 2200,
+      "price": 45440,
       "levelReq": 18,
       "bodyVariant": false,
       "desc": "golden jeweled crown"
@@ -608,7 +608,7 @@
       "name": "Star Halo",
       "category": "headgear",
       "rarity": "legendary",
-      "price": 5500,
+      "price": 247780,
       "levelReq": 30,
       "bodyVariant": false,
       "setId": "cosmic",
@@ -619,7 +619,7 @@
       "name": "Oak Bow",
       "category": "weapon",
       "rarity": "uncommon",
-      "price": 200,
+      "price": 490,
       "levelReq": 4,
       "bodyVariant": false,
       "desc": "carved oak bow"
@@ -629,7 +629,7 @@
       "name": "Crystal Staff",
       "category": "weapon",
       "rarity": "rare",
-      "price": 700,
+      "price": 11100,
       "levelReq": 12,
       "bodyVariant": false,
       "desc": "crystal-topped wizard staff, glowing"
@@ -639,7 +639,7 @@
       "name": "Flame Blade",
       "category": "weapon",
       "rarity": "epic",
-      "price": 2400,
+      "price": 59200,
       "levelReq": 20,
       "bodyVariant": false,
       "desc": "cartoon sword wreathed in friendly orange flames"
@@ -649,7 +649,7 @@
       "name": "Starcaller",
       "category": "weapon",
       "rarity": "legendary",
-      "price": 7000,
+      "price": 290940,
       "levelReq": 32,
       "bodyVariant": false,
       "setId": "cosmic",
@@ -660,7 +660,7 @@
       "name": "Ember Fox",
       "category": "pet",
       "rarity": "rare",
-      "price": 800,
+      "price": 2810,
       "levelReq": 7,
       "bodyVariant": false,
       "desc": "cute ember fox with glowing tail, sitting"
@@ -670,7 +670,7 @@
       "name": "Snowy Owl",
       "category": "pet",
       "rarity": "rare",
-      "price": 800,
+      "price": 2810,
       "levelReq": 7,
       "bodyVariant": false,
       "desc": "snowy owl with big friendly eyes"
@@ -680,7 +680,7 @@
       "name": "Baby Dragon",
       "category": "pet",
       "rarity": "epic",
-      "price": 2600,
+      "price": 33790,
       "levelReq": 16,
       "bodyVariant": false,
       "desc": "chubby friendly baby dragon"
@@ -690,7 +690,7 @@
       "name": "Phoenix Chick",
       "category": "pet",
       "rarity": "legendary",
-      "price": 8000,
+      "price": 208650,
       "levelReq": 28,
       "bodyVariant": false,
       "desc": "glowing phoenix chick with soft fire feathers"
@@ -700,7 +700,7 @@
       "name": "Sparkle Aura",
       "category": "aura",
       "rarity": "uncommon",
-      "price": 300,
+      "price": 1340,
       "levelReq": 6,
       "bodyVariant": false,
       "desc": "ring of gold sparkles, no character"
@@ -710,7 +710,7 @@
       "name": "Flame Aura",
       "category": "aura",
       "rarity": "epic",
-      "price": 2000,
+      "price": 24120,
       "levelReq": 14,
       "bodyVariant": false,
       "desc": "friendly orange flame aura ring, no character"
@@ -720,7 +720,7 @@
       "name": "Cosmic Aura",
       "category": "aura",
       "rarity": "mythic",
-      "price": 15000,
+      "price": 657100,
       "levelReq": 38,
       "bodyVariant": false,
       "setId": "cosmic",
@@ -731,7 +731,7 @@
       "name": "Sunny Meadow",
       "category": "background",
       "rarity": "common",
-      "price": 120,
+      "price": 50,
       "levelReq": 1,
       "bodyVariant": false,
       "desc": "sunny green meadow with flowers and blue sky, scene only no character"
@@ -741,7 +741,7 @@
       "name": "Castle Hall",
       "category": "background",
       "rarity": "rare",
-      "price": 500,
+      "price": 5340,
       "levelReq": 9,
       "bodyVariant": false,
       "desc": "warm stone castle great hall with banners, scene only no character"
@@ -751,7 +751,7 @@
       "name": "Galaxy",
       "category": "background",
       "rarity": "epic",
-      "price": 2200,
+      "price": 39360,
       "levelReq": 17,
       "bodyVariant": false,
       "setId": "cosmic",
@@ -762,7 +762,7 @@
       "name": "Bronze Frame",
       "category": "frame",
       "rarity": "common",
-      "price": 100,
+      "price": 50,
       "levelReq": 1,
       "bodyVariant": false,
       "desc": "square UI card frame, bronze rounded border, empty transparent center"
@@ -772,7 +772,7 @@
       "name": "Silver Frame",
       "category": "frame",
       "rarity": "rare",
-      "price": 600,
+      "price": 6990,
       "levelReq": 10,
       "bodyVariant": false,
       "desc": "square UI card frame, polished silver ornate border, empty transparent center"
@@ -782,7 +782,7 @@
       "name": "Gold Frame",
       "category": "frame",
       "rarity": "legendary",
-      "price": 6000,
+      "price": 173440,
       "levelReq": 26,
       "bodyVariant": false,
       "desc": "square UI card frame, glowing gold ornate border with small gems, empty transparent center"
@@ -792,7 +792,7 @@
       "name": "Victory Cheer",
       "category": "emote",
       "rarity": "uncommon",
-      "price": 350,
+      "price": 850,
       "levelReq": 5,
       "bodyVariant": true,
       "desc": "happy two-arms-up victory cheer pose"
@@ -802,7 +802,7 @@
       "name": "Power Flex",
       "category": "emote",
       "rarity": "rare",
-      "price": 750,
+      "price": 13600,
       "levelReq": 13,
       "bodyVariant": true,
       "desc": "confident strong flex pose"

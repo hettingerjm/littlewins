@@ -199,6 +199,7 @@ export default function HeroPage() {
                   level={econ.level}
                   balance={balance}
                   busy={busyItem === item.id}
+                  bodyType={avatar.bodyType}
                   onBuy={() => buy(item)}
                   onEquip={() => equip(item)}
                 />
@@ -218,6 +219,7 @@ function ShopCard({
   level,
   balance,
   busy,
+  bodyType,
   onBuy,
   onEquip,
 }: {
@@ -227,6 +229,7 @@ function ShopCard({
   level: number
   balance: number
   busy: boolean
+  bodyType: BodyTypeId
   onBuy: () => void
   onEquip: () => void
 }) {
@@ -263,7 +266,7 @@ function ShopCard({
     <div className="card overflow-hidden p-3" style={{ boxShadow: `inset 0 0 0 2px ${color}22` }}>
       <div className="relative mb-2 aspect-square overflow-hidden rounded-xl bg-slate-100">
         <img
-          src={resolveIcon(manifest, item)}
+          src={resolveIcon(manifest, item, bodyType)}
           alt={item.name}
           loading="lazy"
           className="absolute inset-0 h-full w-full object-contain"
