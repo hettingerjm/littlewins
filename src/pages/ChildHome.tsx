@@ -3,7 +3,7 @@ import { Link, useNavigate, useParams } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { useChildClaims, useChildCompletions, useChildren, useTasks } from '../hooks/data'
 import { completeTask, completionId, updateChildAppearance } from '../lib/db'
-import { todayKey, formatLong } from '../lib/dates'
+import { todayKey, formatLong, addDays } from '../lib/dates'
 import { tasksForChildOn, scheduleLabel } from '../lib/schedule'
 import { earnedOn, totalEarned, availableBalance } from '../lib/points'
 import { computeStreak } from '../lib/streak'
@@ -31,19 +31,33 @@ export default function ChildHome() {
 
   const child = children.find((c) => c.id === childId)
   const today = todayKey()
+  // The day the kid is looking at. Defaults to today, but they can page back to
+  // earlier days to check off something they forgot. Capped at today.
+  const [viewDate, setViewDate] = useState(today)
+  const isToday = viewDate === today
 
   const todays = useMemo(
-    () => (child ? tasksForChildOn(tasks, child.id, today) : []),
-    [tasks, child, today],
+    () => (child ? tasksForChildOn(tasks, child.id, viewDate) : []),
+    [tasks, child, viewDate],
   )
   const doneToday = useMemo(() => {
     const set = new Set<string>()
-    for (const c of completions) if (c.date === today) set.add(c.taskId)
+    for (const c of completions) if (c.date === viewDate) set.add(c.taskId)
     return set
-  }, [completions, today])
+  }, [completions, viewDate])
 
   // Celebrate the moment the day flips from incomplete -> all done.
   const celebratedRef = useRef<boolean | null>(null)
+
+  // Move to another day, re-baselining the celebration so paging onto an
+  // already-complete past day doesn't fire confetti.
+  const goToDate = (next: string) => {
+    if (next > today) return // never step into the future
+    void sound.play('tap')
+    celebratedRef.current = null
+    setViewDate(next)
+  }
+
   useEffect(() => {
     if (!child || tasksLoading || compLoading) return
     const total = todays.length
@@ -76,7 +90,7 @@ export default function ChildHome() {
   const theme = getTheme(child.theme)
   const total = todays.length
   const completed = todays.filter((t) => doneToday.has(t.id)).length
-  const pointsToday = earnedOn(completions, child.id, today)
+  const pointsToday = earnedOn(completions, child.id, viewDate)
   const totalPoints = totalEarned(completions, child.id)
   const streak = computeStreak(tasks, completions, child.id, today)
   const balance = availableBalance(completions, claims, child.id)
@@ -105,14 +119,44 @@ export default function ChildHome() {
           </button>
           <div>
             <h1 className="text-xl font-black leading-none text-slate-900">{child.name}</h1>
-            <p className="text-xs text-slate-400">{formatLong(today)}</p>
           </div>
         </div>
         <SoundToggle />
       </div>
 
+      {/* Day navigation — page back to earlier days to check off missed tasks */}
+      <div className="mb-4 flex items-center gap-2">
+        <button
+          onClick={() => goToDate(addDays(viewDate, -1))}
+          className="flex shrink-0 items-center gap-1 rounded-xl bg-slate-100 px-3 py-2 text-sm font-bold text-slate-700 transition hover:bg-slate-200 active:scale-95"
+          aria-label="Previous day"
+        >
+          ‹ Back a day
+        </button>
+        <div className="flex-1 text-center text-sm font-black text-slate-600">
+          {isToday ? '📅 Today' : `📅 ${formatLong(viewDate)}`}
+        </div>
+        <button
+          onClick={() => goToDate(addDays(viewDate, 1))}
+          disabled={isToday}
+          className="flex shrink-0 items-center gap-1 rounded-xl bg-slate-100 px-3 py-2 text-sm font-bold text-slate-700 transition hover:bg-slate-200 active:scale-95 disabled:opacity-30"
+          aria-label="Next day"
+        >
+          Next ›
+        </button>
+      </div>
+
+      {!isToday && (
+        <button
+          onClick={() => goToDate(today)}
+          className="mb-4 flex w-full items-center justify-center gap-2 rounded-2xl bg-amber-100 px-4 py-2.5 text-sm font-bold text-amber-700 transition hover:bg-amber-200 active:scale-[0.99]"
+        >
+          Catching up on an earlier day — tap to jump back to today
+        </button>
+      )}
+
       <div className="mb-5 grid grid-cols-3 gap-3">
-        <StatCard label="Today" value={pointsToday} emoji="✨" accent={theme.accent} />
+        <StatCard label={isToday ? 'Today' : 'That day'} value={pointsToday} emoji="✨" accent={theme.accent} />
         <StatCard label="Total points" value={totalPoints} emoji="⭐" />
         <StatCard
           label="Day streak"
@@ -183,7 +227,7 @@ export default function ChildHome() {
 
       <div className="card mb-6 p-4">
         <div className="mb-2 flex items-center justify-between text-sm font-bold text-slate-600">
-          <span>Today's progress</span>
+          <span>{isToday ? "Today's progress" : 'Progress'}</span>
           <span>
             {completed} / {total}
           </span>
@@ -196,7 +240,7 @@ export default function ChildHome() {
         </div>
         {allDone && (
           <p className={`mt-3 animate-scale-in text-center text-lg font-black ${theme.accent}`}>
-            🎉 All done today! Amazing!
+            🎉 All done{isToday ? ' today' : ''}! Amazing!
           </p>
         )}
       </div>
@@ -204,8 +248,10 @@ export default function ChildHome() {
       {total === 0 ? (
         <div className="card px-6 py-12 text-center text-slate-400">
           <div className="text-5xl">🌤️</div>
-          <p className="mt-2 font-bold text-slate-600">No tasks scheduled today.</p>
-          <p className="text-sm">Enjoy your free day!</p>
+          <p className="mt-2 font-bold text-slate-600">
+            No tasks scheduled {isToday ? 'today' : 'that day'}.
+          </p>
+          <p className="text-sm">{isToday ? 'Enjoy your free day!' : 'Nothing to catch up on.'}</p>
         </div>
       ) : (
         <ul className="space-y-3">
@@ -215,7 +261,7 @@ export default function ChildHome() {
               familyId={familyId!}
               task={task}
               childId={child.id}
-              dateKey={today}
+              dateKey={viewDate}
               done={doneToday.has(task.id)}
               theme={theme}
               index={i}
