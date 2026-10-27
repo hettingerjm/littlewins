@@ -50,7 +50,7 @@ export const kidLogin = onCall<KidLoginData>(async (request) => {
   const authRef = db.doc(`families/${familyId}/private/auth`)
 
   // Verify (and update lockout state) inside a transaction.
-  await db.runTransaction(async (tx) => {
+  const pinMatched = await db.runTransaction(async (tx) => {
     const snap = await tx.get(authRef)
     if (!snap.exists) {
       throw new HttpsError('not-found', 'Unknown family.')
@@ -83,12 +83,19 @@ export const kidLogin = onCall<KidLoginData>(async (request) => {
         update.failCount = 0
       }
       tx.set(authRef, update, { merge: true })
-      throw new HttpsError('permission-denied', 'Incorrect PIN.')
+      return false
     }
 
     // Success — clear any failure state.
     tx.set(authRef, { failCount: 0, lockUntil: null }, { merge: true })
+    return true
   })
+
+  // Throw only after the failed-attempt write has committed. Throwing inside the
+  // transaction aborts that write, leaving the PIN lockout permanently inactive.
+  if (!pinMatched) {
+    throw new HttpsError('permission-denied', 'Incorrect PIN.')
+  }
 
   // One shared kiosk identity per family for the kids' device.
   const uid = `child_${familyId}`
